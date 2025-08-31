@@ -1,142 +1,148 @@
-"use client"
+/* eslint-env browser */
 
-import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Share2, Users, Gift, Star } from "lucide-react"
+import React from 'react';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Share2, Users, Gift, Star } from 'lucide-react';
 
 declare global {
   interface Window {
     Telegram?: {
       WebApp: {
-        setHeaderColor(arg0: string): unknown
-        setBackgroundColor(arg0: string): unknown
-        ready: () => void
-        expand: () => void
-        close: () => void
+        setHeaderColor(arg0: string): unknown;
+        setBackgroundColor(arg0: string): unknown;
+        ready: () => void;
+        expand: () => void;
+        close: () => void;
         MainButton: {
-          text: string
-          color: string
-          textColor: string
-          isVisible: boolean
-          isActive: boolean
-          setText: (text: string) => void
-          onClick: (callback: () => void) => void
-          show: () => void
-          hide: () => void
-        }
+          text: string;
+          color: string;
+          textColor: string;
+          isVisible: boolean;
+          isActive: boolean;
+          setText: (text: string) => void;
+          onClick: (callback: () => void) => void;
+          show: () => void;
+          hide: () => void;
+        };
         BackButton: {
-          isVisible: boolean
-          onClick: (callback: () => void) => void
-          show: () => void
-          hide: () => void
-        }
-        initData: string
+          isVisible: boolean;
+          onClick: (callback: () => void) => void;
+          show: () => void;
+          hide: () => void;
+        };
+        initData: string;
         initDataUnsafe: {
           user?: {
-            id: number
-            first_name: string
-            last_name?: string
-            username?: string
-            photo_url?: string
-          }
-          start_param?: string
-        }
+            id: number;
+            first_name: string;
+            last_name?: string;
+            username?: string;
+            photo_url?: string;
+          };
+          start_param?: string;
+        };
         themeParams: {
-          bg_color: string
-          text_color: string
-          hint_color: string
-          link_color: string
-          button_color: string
-          button_text_color: string
-        }
-        showAlert: (message: string) => void
-        showConfirm: (message: string, callback: (confirmed: boolean) => void) => void
-        openLink: (url: string) => void
-        shareToStory: (mediaUrl: string, params?: any) => void
-        openTelegramLink: (url: string) => void
-      }
-    }
+          bg_color: string;
+          text_color: string;
+          hint_color: string;
+          link_color: string;
+          button_color: string;
+          button_text_color: string;
+        };
+        showAlert: (message: string) => void;
+        showConfirm: (message: string, callback: (confirmed: boolean) => void) => void;
+        openLink: (url: string) => void;
+        shareToStory: (mediaUrl: string, params?: any) => void;
+        openTelegramLink: (url: string) => void;
+      };
+    };
   }
 }
 
 interface TelegramUser {
-  id: number
-  firstName: string
-  lastName?: string
-  username?: string
-  photoUrl?: string
+  id: number;
+  firstName: string;
+  lastName?: string;
+  username?: string;
+  photoUrl?: string;
 }
 
 const telegramConfig = {
   botToken: process.env.TELEGRAM_BOT_TOKEN,
-  botUsername: process.env.TELEGRAM_BOT_USERNAME || "LisaToken_Bot",
-  botUrl: process.env.TELEGRAM_BOT_URL || "https://t.me/LisaToken_Bot",
-}
+  botUsername: process.env.TELEGRAM_BOT_USERNAME || 'LisaToken_Bot',
+  botUrl: process.env.TELEGRAM_BOT_URL || 'https://t.me/LisaToken_Bot',
+};
 
 export function TelegramIntegration() {
   const [hydrated, setHydrated] = useState(false);
-  const [telegramUser, setTelegramUser] = useState<TelegramUser | null>(null)
-  const [isReady, setIsReady] = useState(false)
+  const [telegramUser, setTelegramUser] = useState<TelegramUser | null>(null);
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     setHydrated(true);
-    if (typeof window !== "undefined" && window.Telegram?.WebApp) {
-      const tg = window.Telegram.WebApp
+    if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+      const tg = window.Telegram.WebApp;
 
       // Initialize Telegram WebApp
-      tg.ready()
-      tg.expand()
-      setIsReady(true)
+      tg.ready();
+      tg.expand();
+      setIsReady(true);
 
       // Get user data
       if (tg.initDataUnsafe.user) {
-        const user = tg.initDataUnsafe.user
+        const user = tg.initDataUnsafe.user;
         setTelegramUser({
           id: user.id,
           firstName: user.first_name,
           lastName: user.last_name,
           username: user.username,
           photoUrl: user.photo_url,
-        })
+        });
       }
 
       // Apply Telegram theme
       if (tg.themeParams) {
-        if (typeof document !== "undefined") {
-          document.documentElement.style.setProperty("--tg-bg-color", tg.themeParams.bg_color)
-          document.documentElement.style.setProperty("--tg-text-color", tg.themeParams.text_color)
-          document.documentElement.style.setProperty("--tg-button-color", tg.themeParams.button_color)
+        if (typeof document !== 'undefined') {
+          document.documentElement.style.setProperty('--tg-bg-color', tg.themeParams.bg_color);
+          document.documentElement.style.setProperty('--tg-text-color', tg.themeParams.text_color);
+          document.documentElement.style.setProperty(
+            '--tg-button-color',
+            tg.themeParams.button_color,
+          );
         }
       }
     }
-  }, [])
+  }, []);
 
   const shareGame = () => {
-    const shareText = `🌟 Join me in Guardian Angel LISA! Help Lisa save lost souls and earn LISA tokens! 💎`
-    const shareUrl = `${telegramConfig.botUrl}?start=${telegramUser?.id || "invite"}`
+    const shareText = `🌟 Join me in Guardian Angel LISA! Help Lisa save lost souls and earn LISA tokens! 💎`;
+    const shareUrl = `${telegramConfig.botUrl}?start=${telegramUser?.id || 'invite'}`;
 
-    if (typeof window !== "undefined" && window.Telegram?.WebApp) {
+    if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
       window.Telegram.WebApp.openTelegramLink(
         `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`,
-      )
+      );
     }
-  }
+  };
 
   const inviteFriends = () => {
-    if (typeof window !== "undefined" && window.Telegram?.WebApp) {
-      const inviteUrl = `https://t.me/share/url?url=${encodeURIComponent(window.location.href + "?ref=" + telegramUser?.id)}&text=${encodeURIComponent("🪽 Guardian Angel LISA needs your help! Join me in this epic tap-to-earn adventure and get bonus rewards! 💎")}`
-      window.Telegram.WebApp.openLink(inviteUrl)
+    if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+      const inviteUrl = `https://t.me/share/url?url=${encodeURIComponent(window.location.href + '?ref=' + telegramUser?.id)}&text=${encodeURIComponent('🪽 Guardian Angel LISA needs your help! Join me in this epic tap-to-earn adventure and get bonus rewards! 💎')}`;
+      window.Telegram.WebApp.openLink(inviteUrl);
     }
-  }
+  };
 
   if (!hydrated || !isReady) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-400"></div>
       </div>
-    )
+    );
   }
 
   return (
@@ -153,7 +159,7 @@ export function TelegramIntegration() {
             <div className="flex items-center gap-3">
               {telegramUser.photoUrl && (
                 <img
-                  src={telegramUser.photoUrl || "/placeholder.svg"}
+                  src={telegramUser.photoUrl || '/placeholder.svg'}
                   alt="Profile"
                   className="w-12 h-12 rounded-full border-2 border-emerald-400/50"
                 />
@@ -162,7 +168,9 @@ export function TelegramIntegration() {
                 <p className="text-white font-medium">
                   {telegramUser.firstName} {telegramUser.lastName}
                 </p>
-                {telegramUser.username && <p className="text-slate-400 text-sm">@{telegramUser.username}</p>}
+                {telegramUser.username && (
+                  <p className="text-slate-400 text-sm">@{telegramUser.username}</p>
+                )}
                 <Badge variant="secondary" className="mt-1 bg-emerald-500/20 text-emerald-400">
                   Guardian Angel
                 </Badge>
@@ -217,5 +225,5 @@ export function TelegramIntegration() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

@@ -1,20 +1,20 @@
-"use client"
+'use client';
 
-import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { TonConnectButton } from "@tonconnect/ui-react"
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { TonConnectButton } from '@tonconnect/ui-react';
 
 interface GameHeaderProps {
   gameStats: {
-    coins: number
-    energy: number
-    maxEnergy: number
-    level: number
-    experience: number
-  }
-  wallet: any
-  tonConnectUI: any
+    coins: number;
+    energy: number;
+    maxEnergy: number;
+    level: number;
+    experience: number;
+  };
+  wallet: any;
+  tonConnectUI: any;
 }
 
 export function GameHeader({ gameStats, wallet, tonConnectUI }: GameHeaderProps) {
@@ -61,5 +61,5 @@ export function GameHeader({ gameStats, wallet, tonConnectUI }: GameHeaderProps)
         </div>
       </div>
     </header>
-  )
+  );
 }

@@ -1,131 +1,135 @@
-"use client"
+'use client';
 
-import type React from "react"
+import type React from 'react';
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { CheckCircle, ExternalLink, Users, MessageCircle, Heart, Share2 } from "lucide-react"
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { CheckCircle, ExternalLink, Users, MessageCircle, Heart, Share2 } from 'lucide-react';
 
 interface TelegramTask {
-  id: string
-  title: string
-  description: string
-  reward: number
-  type: "join" | "share" | "invite" | "follow"
-  url?: string
-  completed: boolean
-  icon: React.ReactNode
+  id: string;
+  title: string;
+  description: string;
+  reward: number;
+  type: 'join' | 'share' | 'invite' | 'follow';
+  url?: string;
+  completed: boolean;
+  icon: React.ReactNode;
 }
 
 export function TelegramTasks() {
   const [hydrated, setHydrated] = useState(false);
   const [tasks, setTasks] = useState<TelegramTask[]>([
     {
-      id: "join-channel",
-      title: "Join LISA Official Channel",
-      description: "Join our official Telegram channel for updates",
+      id: 'join-channel',
+      title: 'Join LISA Official Channel',
+      description: 'Join our official Telegram channel for updates',
       reward: 1000,
-      type: "join",
-      url: "https://t.me/guardianangellisa",
+      type: 'join',
+      url: 'https://t.me/guardianangellisa',
       completed: false,
       icon: <MessageCircle className="h-5 w-5" />,
     },
     {
-      id: "join-community",
-      title: "Join LISA Community",
-      description: "Join our community chat and say hello",
+      id: 'join-community',
+      title: 'Join LISA Community',
+      description: 'Join our community chat and say hello',
       reward: 500,
-      type: "join",
-      url: "https://t.me/lisacommunity",
+      type: 'join',
+      url: 'https://t.me/lisacommunity',
       completed: false,
       icon: <Users className="h-5 w-5" />,
     },
     {
-      id: "follow-twitter",
-      title: "Follow on Twitter",
-      description: "Follow @GuardianAngelLISA on Twitter",
+      id: 'follow-twitter',
+      title: 'Follow on Twitter',
+      description: 'Follow @GuardianAngelLISA on Twitter',
       reward: 750,
-      type: "follow",
-      url: "https://twitter.com/GuardianAngelLISA",
+      type: 'follow',
+      url: 'https://twitter.com/GuardianAngelLISA',
       completed: false,
       icon: <Heart className="h-5 w-5" />,
     },
     {
-      id: "share-game",
-      title: "Share with 3 Friends",
-      description: "Share the game with at least 3 friends",
+      id: 'share-game',
+      title: 'Share with 3 Friends',
+      description: 'Share the game with at least 3 friends',
       reward: 2000,
-      type: "share",
+      type: 'share',
       completed: false,
       icon: <Share2 className="h-5 w-5" />,
     },
     {
-      id: "invite-friends",
-      title: "Invite 5 Friends",
-      description: "Invite 5 friends to play the game",
+      id: 'invite-friends',
+      title: 'Invite 5 Friends',
+      description: 'Invite 5 friends to play the game',
       reward: 5000,
-      type: "invite",
+      type: 'invite',
       completed: false,
       icon: <Users className="h-5 w-5" />,
     },
-  ])
+  ]);
 
-  const [completedTasks, setCompletedTasks] = useState(0)
-  const [totalRewards, setTotalRewards] = useState(0)
+  const [completedTasks, setCompletedTasks] = useState(0);
+  const [totalRewards, setTotalRewards] = useState(0);
 
   useEffect(() => {
     setHydrated(true);
-    const completed = tasks.filter((task) => task.completed).length
-    const rewards = tasks.filter((task) => task.completed).reduce((sum, task) => sum + task.reward, 0)
-    setCompletedTasks(completed)
-    setTotalRewards(rewards)
-  }, [tasks])
+    const completed = tasks.filter((task) => task.completed).length;
+    const rewards = tasks
+      .filter((task) => task.completed)
+      .reduce((sum, task) => sum + task.reward, 0);
+    setCompletedTasks(completed);
+    setTotalRewards(rewards);
+  }, [tasks]);
 
   const handleTaskAction = (taskId: string) => {
-    const task = tasks.find((t) => t.id === taskId)
-    if (!task) return
+    const task = tasks.find((t) => t.id === taskId);
+    if (!task) return;
 
-    if (task.url && (task.type === "join" || task.type === "follow")) {
+    if (task.url && (task.type === 'join' || task.type === 'follow')) {
       // Open external link
-      if (typeof window !== "undefined" && window.Telegram?.WebApp) {
-        window.Telegram.WebApp.openLink(task.url)
-      } else if (typeof window !== "undefined") {
-        window.open(task.url, "_blank")
+      if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+        window.Telegram.WebApp.openLink(task.url);
+      } else if (typeof window !== 'undefined') {
+        window.open(task.url, '_blank');
       }
 
       // Mark as completed after a delay (simulate verification)
       setTimeout(() => {
-        setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, completed: true } : t)))
-      }, 3000)
-    } else if (task.type === "share") {
+        setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, completed: true } : t)));
+      }, 3000);
+    } else if (task.type === 'share') {
       // Handle sharing
-      if (typeof window !== "undefined" && window.Telegram?.WebApp) {
-        const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent("🪽 Join me in Guardian Angel LISA! Tap to earn LISA tokens! 🌟")}`
-        window.Telegram.WebApp.openLink(shareUrl)
+      if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+        const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent('🪽 Join me in Guardian Angel LISA! Tap to earn LISA tokens! 🌟')}`;
+        window.Telegram.WebApp.openLink(shareUrl);
       }
 
-      setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, completed: true } : t)))
-    } else if (task.type === "invite") {
+      setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, completed: true } : t)));
+    } else if (task.type === 'invite') {
       // Handle inviting
-      if (typeof window !== "undefined" && window.Telegram?.WebApp) {
-        const inviteUrl = `https://t.me/share/url?url=${encodeURIComponent(window.location.href + "?ref=invite")}&text=${encodeURIComponent("🪽 Guardian Angel LISA needs your help! Join this epic adventure! 💎")}`
-        window.Telegram.WebApp.openLink(inviteUrl)
+      if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+        const inviteUrl = `https://t.me/share/url?url=${encodeURIComponent(window.location.href + '?ref=invite')}&text=${encodeURIComponent('🪽 Guardian Angel LISA needs your help! Join this epic adventure! 💎')}`;
+        window.Telegram.WebApp.openLink(inviteUrl);
       }
 
-      setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, completed: true } : t)))
+      setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, completed: true } : t)));
     }
-  }
+  };
 
   const claimAllRewards = () => {
-    if (typeof window !== "undefined" && window.Telegram?.WebApp) {
-      window.Telegram.WebApp.showAlert(`🎉 Claimed ${totalRewards} LISA tokens from completed tasks!`)
+    if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+      window.Telegram.WebApp.showAlert(
+        `🎉 Claimed ${totalRewards} LISA tokens from completed tasks!`,
+      );
     }
     // Reset rewards counter
-    setTotalRewards(0)
-  }
+    setTotalRewards(0);
+  };
 
   if (!hydrated) {
     return (
@@ -169,8 +173,8 @@ export function TelegramTasks() {
             key={task.id}
             className={`transition-all duration-300 ${
               task.completed
-                ? "bg-emerald-900/30 border-emerald-500/50"
-                : "bg-slate-800/50 border-slate-600/50 hover:border-purple-500/50"
+                ? 'bg-emerald-900/30 border-emerald-500/50'
+                : 'bg-slate-800/50 border-slate-600/50 hover:border-purple-500/50'
             }`}
           >
             <CardContent className="p-4">
@@ -178,7 +182,9 @@ export function TelegramTasks() {
                 <div className="flex items-center gap-3">
                   <div
                     className={`p-2 rounded-full ${
-                      task.completed ? "bg-emerald-500/20 text-emerald-400" : "bg-purple-500/20 text-purple-400"
+                      task.completed
+                        ? 'bg-emerald-500/20 text-emerald-400'
+                        : 'bg-purple-500/20 text-purple-400'
                     }`}
                   >
                     {task.completed ? <CheckCircle className="h-5 w-5" /> : task.icon}
@@ -187,7 +193,9 @@ export function TelegramTasks() {
                     <h3 className="font-semibold text-white">{task.title}</h3>
                     <p className="text-sm text-slate-400">{task.description}</p>
                     <div className="flex items-center gap-2 mt-1">
-                      <Badge className="bg-emerald-500/20 text-emerald-400">+{task.reward} LISA</Badge>
+                      <Badge className="bg-emerald-500/20 text-emerald-400">
+                        +{task.reward} LISA
+                      </Badge>
                     </div>
                   </div>
                 </div>
@@ -201,12 +209,12 @@ export function TelegramTasks() {
                       size="sm"
                       className="bg-purple-600 hover:bg-purple-700 text-white"
                     >
-                      {task.type === "join" || task.type === "follow" ? (
+                      {task.type === 'join' || task.type === 'follow' ? (
                         <>
                           <ExternalLink className="h-4 w-4 mr-1" />
-                          {task.type === "join" ? "Join" : "Follow"}
+                          {task.type === 'join' ? 'Join' : 'Follow'}
                         </>
-                      ) : task.type === "share" ? (
+                      ) : task.type === 'share' ? (
                         <>
                           <Share2 className="h-4 w-4 mr-1" />
                           Share
@@ -226,5 +234,5 @@ export function TelegramTasks() {
         ))}
       </div>
     </div>
-  )
+  );
 }

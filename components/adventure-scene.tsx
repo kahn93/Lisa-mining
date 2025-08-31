@@ -1,28 +1,28 @@
-"use client"
+'use client';
 
-import { useRef } from "react"
-import { useFrame } from "@react-three/fiber"
-import { Text, Box, Sphere, Cone } from "@react-three/drei"
-import type * as THREE from "three"
+import { useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
+import { Text, Box, Sphere, Cone } from '@react-three/drei';
+import type * as THREE from 'three';
 
 interface AdventureSceneProps {
-  questLocation: string
+  questLocation: string;
 }
 
 export function AdventureScene({ questLocation }: AdventureSceneProps) {
-  const groupRef = useRef<THREE.Group>(null)
-  const angelRef = useRef<THREE.Mesh>(null)
+  const groupRef = useRef<THREE.Group>(null);
+  const angelRef = useRef<THREE.Mesh>(null);
 
   useFrame((state: { clock: { elapsedTime: number } }) => {
     if (angelRef.current) {
-      angelRef.current.position.y = Math.sin(state.clock.elapsedTime) * 0.2
-      angelRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.1
+      angelRef.current.position.y = Math.sin(state.clock.elapsedTime) * 0.2;
+      angelRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.1;
     }
-  })
+  });
 
   const getSceneElements = () => {
     switch (questLocation) {
-      case "Mystic Forest":
+      case 'Mystic Forest':
         return (
           <>
             {/* Trees */}
@@ -39,8 +39,8 @@ export function AdventureScene({ questLocation }: AdventureSceneProps) {
             <Sphere args={[0.05]} position={[1, 2.5, -1]} material-color="#10b981" />
             <Sphere args={[0.05]} position={[2, 1.8, 2]} material-color="#10b981" />
           </>
-        )
-      case "Temple of Light":
+        );
+      case 'Temple of Light':
         return (
           <>
             {/* Temple structure */}
@@ -54,8 +54,8 @@ export function AdventureScene({ questLocation }: AdventureSceneProps) {
             {/* Light beams */}
             <Sphere args={[0.1]} position={[0, 4, -3]} material-color="#ffd700" />
           </>
-        )
-      case "Tower of Shadows":
+        );
+      case 'Tower of Shadows':
         return (
           <>
             {/* Dark tower */}
@@ -69,8 +69,8 @@ export function AdventureScene({ questLocation }: AdventureSceneProps) {
             <Sphere args={[0.08]} position={[-1, 3, -2]} material-color="#8b0000" />
             <Sphere args={[0.08]} position={[1, 2, -1]} material-color="#8b0000" />
           </>
-        )
-      case "Gates of Hell":
+        );
+      case 'Gates of Hell':
         return (
           <>
             {/* Hell gates */}
@@ -86,11 +86,11 @@ export function AdventureScene({ questLocation }: AdventureSceneProps) {
             <Sphere args={[0.1]} position={[2, 1, -3]} material-color="#ff4500" />
             <Sphere args={[0.1]} position={[0, 1, -2]} material-color="#ff4500" />
           </>
-        )
+        );
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   return (
     <group ref={groupRef}>
@@ -103,11 +103,26 @@ export function AdventureScene({ questLocation }: AdventureSceneProps) {
         <Sphere args={[0.3]} position={[0, 0, 0]} material-color="#f8f8ff" />
 
         {/* Wings */}
-        <Box args={[0.8, 0.1, 0.3]} position={[-0.4, 0.2, -0.1]} material-color="#ffffff" rotation={[0, 0, 0.3]} />
-        <Box args={[0.8, 0.1, 0.3]} position={[0.4, 0.2, -0.1]} material-color="#ffffff" rotation={[0, 0, -0.3]} />
+        <Box
+          args={[0.8, 0.1, 0.3]}
+          position={[-0.4, 0.2, -0.1]}
+          material-color="#ffffff"
+          rotation={[0, 0, 0.3]}
+        />
+        <Box
+          args={[0.8, 0.1, 0.3]}
+          position={[0.4, 0.2, -0.1]}
+          material-color="#ffffff"
+          rotation={[0, 0, -0.3]}
+        />
 
         {/* Halo */}
-        <Sphere args={[0.4, 8, 8]} position={[0, 0.6, 0]} material-color="#ffd700" material-wireframe />
+        <Sphere
+          args={[0.4, 8, 8]}
+          position={[0, 0.6, 0]}
+          material-color="#ffd700"
+          material-wireframe
+        />
 
         {/* Sword */}
         <Box args={[0.05, 0.8, 0.05]} position={[0.3, -0.2, 0]} material-color="#c0c0c0" />
@@ -130,5 +145,5 @@ export function AdventureScene({ questLocation }: AdventureSceneProps) {
       <ambientLight intensity={0.6} />
       <pointLight position={[0, 5, 5]} intensity={0.8} color="#10b981" />
     </group>
-  )
+  );
 }

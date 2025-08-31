@@ -1,10 +1,10 @@
-"use client"
+'use client';
 
-import { useState, useEffect, useRef } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { Badge } from "@/components/ui/badge"
+import { useState, useEffect, useRef } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 import {
   Sword,
   Shield,
@@ -19,63 +19,63 @@ import {
   Sparkles,
   Crown,
   Flame,
-} from "lucide-react"
+} from 'lucide-react';
 
 interface Character {
-  name: string
-  level: number
-  hp: number
-  maxHp: number
-  mp: number
-  maxMp: number
-  attack: number
-  defense: number
-  speed: number
-  experience: number
-  experienceToNext: number
-  position: { x: number; y: number }
-  direction: "up" | "down" | "left" | "right"
-  weapon: string
-  skills: string[]
-  inventory: string[]
+  name: string;
+  level: number;
+  hp: number;
+  maxHp: number;
+  mp: number;
+  maxMp: number;
+  attack: number;
+  defense: number;
+  speed: number;
+  experience: number;
+  experienceToNext: number;
+  position: { x: number; y: number };
+  direction: 'up' | 'down' | 'left' | 'right';
+  weapon: string;
+  skills: string[];
+  inventory: string[];
 }
 
 interface Enemy {
-  id: string
-  name: string
-  type: "demon" | "witch" | "wizard" | "zombie" | "devil"
-  hp: number
-  maxHp: number
-  attack: number
-  defense: number
-  position: { x: number; y: number }
-  reward: { coins: number; experience: number }
-  isAlive: boolean
+  id: string;
+  name: string;
+  type: 'demon' | 'witch' | 'wizard' | 'zombie' | 'devil';
+  hp: number;
+  maxHp: number;
+  attack: number;
+  defense: number;
+  position: { x: number; y: number };
+  reward: { coins: number; experience: number };
+  isAlive: boolean;
 }
 
 interface Quest {
-  id: string
-  title: string
-  description: string
-  type: "rescue" | "defeat" | "collect" | "explore"
-  target: string
-  progress: number
-  maxProgress: number
-  completed: boolean
-  reward: { coins: number; experience: number; item?: string }
+  id: string;
+  title: string;
+  description: string;
+  type: 'rescue' | 'defeat' | 'collect' | 'explore';
+  target: string;
+  progress: number;
+  maxProgress: number;
+  completed: boolean;
+  reward: { coins: number; experience: number; item?: string };
 }
 
 interface GameMap {
-  width: number
-  height: number
-  tiles: ("grass" | "stone" | "water" | "portal" | "enemy" | "soul")[][]
-  enemies: Enemy[]
-  souls: { x: number; y: number; rescued: boolean }[]
+  width: number;
+  height: number;
+  tiles: ('grass' | 'stone' | 'water' | 'portal' | 'enemy' | 'soul')[][];
+  enemies: Enemy[];
+  souls: { x: number; y: number; rescued: boolean }[];
 }
 
 export default function RPGAdventure() {
   const [character, setCharacter] = useState<Character>({
-    name: "Guardian Angel Lisa",
+    name: 'Guardian Angel Lisa',
     level: 1,
     hp: 100,
     maxHp: 100,
@@ -87,23 +87,23 @@ export default function RPGAdventure() {
     experience: 0,
     experienceToNext: 100,
     position: { x: 5, y: 5 },
-    direction: "down",
-    weapon: "Divine Sword",
-    skills: ["Healing Light", "Divine Strike", "Angel Wings"],
-    inventory: ["Health Potion", "Mana Potion"],
-  })
+    direction: 'down',
+    weapon: 'Divine Sword',
+    skills: ['Healing Light', 'Divine Strike', 'Angel Wings'],
+    inventory: ['Health Potion', 'Mana Potion'],
+  });
 
   const [gameMap, setGameMap] = useState<GameMap>({
     width: 12,
     height: 8,
     tiles: Array(8)
       .fill(null)
-      .map(() => Array(12).fill("grass")),
+      .map(() => Array(12).fill('grass')),
     enemies: [
       {
-        id: "demon1",
-        name: "Shadow Demon",
-        type: "demon",
+        id: 'demon1',
+        name: 'Shadow Demon',
+        type: 'demon',
         hp: 60,
         maxHp: 60,
         attack: 12,
@@ -113,9 +113,9 @@ export default function RPGAdventure() {
         isAlive: true,
       },
       {
-        id: "witch1",
-        name: "Dark Witch",
-        type: "witch",
+        id: 'witch1',
+        name: 'Dark Witch',
+        type: 'witch',
         hp: 45,
         maxHp: 45,
         attack: 18,
@@ -125,9 +125,9 @@ export default function RPGAdventure() {
         isAlive: true,
       },
       {
-        id: "zombie1",
-        name: "Lost Zombie",
-        type: "zombie",
+        id: 'zombie1',
+        name: 'Lost Zombie',
+        type: 'zombie',
         hp: 80,
         maxHp: 80,
         attack: 8,
@@ -143,271 +143,275 @@ export default function RPGAdventure() {
       { x: 7, y: 1, rescued: false },
       { x: 1, y: 7, rescued: false },
     ],
-  })
+  });
 
   const [activeQuests, setActiveQuests] = useState<Quest[]>([
     {
-      id: "rescue_souls",
-      title: "Save the Lost Souls",
-      description: "Find and rescue 4 lost souls trapped in this realm",
-      type: "rescue",
-      target: "souls",
+      id: 'rescue_souls',
+      title: 'Save the Lost Souls',
+      description: 'Find and rescue 4 lost souls trapped in this realm',
+      type: 'rescue',
+      target: 'souls',
       progress: 0,
       maxProgress: 4,
       completed: false,
-      reward: { coins: 100, experience: 150, item: "Angel Halo" },
+      reward: { coins: 100, experience: 150, item: 'Angel Halo' },
     },
     {
-      id: "defeat_demons",
-      title: "Cleanse the Darkness",
-      description: "Defeat all demons and dark creatures",
-      type: "defeat",
-      target: "enemies",
+      id: 'defeat_demons',
+      title: 'Cleanse the Darkness',
+      description: 'Defeat all demons and dark creatures',
+      type: 'defeat',
+      target: 'enemies',
       progress: 0,
       maxProgress: 3,
       completed: false,
-      reward: { coins: 75, experience: 100, item: "Divine Shield" },
+      reward: { coins: 75, experience: 100, item: 'Divine Shield' },
     },
-  ])
+  ]);
 
   const [battleState, setBattleState] = useState<{
-    inBattle: boolean
-    enemy: Enemy | null
-    playerTurn: boolean
-    battleLog: string[]
+    inBattle: boolean;
+    enemy: Enemy | null;
+    playerTurn: boolean;
+    battleLog: string[];
   }>({
     inBattle: false,
     enemy: null,
     playerTurn: true,
     battleLog: [],
-  })
+  });
 
-  const [gameMessage, setGameMessage] = useState<string>("")
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [gameMessage, setGameMessage] = useState<string>('');
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      if (battleState.inBattle) return
+      if (battleState.inBattle) return;
 
-      let newX = character.position.x
-      let newY = character.position.y
-      let newDirection = character.direction
+      let newX = character.position.x;
+      let newY = character.position.y;
+      let newDirection = character.direction;
 
       switch (e.key.toLowerCase()) {
-        case "w":
-        case "arrowup":
-          newY = Math.max(0, newY - 1)
-          newDirection = "up"
-          break
-        case "s":
-        case "arrowdown":
-          newY = Math.min(gameMap.height - 1, newY + 1)
-          newDirection = "down"
-          break
-        case "a":
-        case "arrowleft":
-          newX = Math.max(0, newX - 1)
-          newDirection = "left"
-          break
-        case "d":
-        case "arrowright":
-          newX = Math.min(gameMap.width - 1, newX + 1)
-          newDirection = "right"
-          break
+        case 'w':
+        case 'arrowup':
+          newY = Math.max(0, newY - 1);
+          newDirection = 'up';
+          break;
+        case 's':
+        case 'arrowdown':
+          newY = Math.min(gameMap.height - 1, newY + 1);
+          newDirection = 'down';
+          break;
+        case 'a':
+        case 'arrowleft':
+          newX = Math.max(0, newX - 1);
+          newDirection = 'left';
+          break;
+        case 'd':
+        case 'arrowright':
+          newX = Math.min(gameMap.width - 1, newX + 1);
+          newDirection = 'right';
+          break;
       }
 
       if (newX !== character.position.x || newY !== character.position.y) {
-        moveCharacter(newX, newY, newDirection)
+        moveCharacter(newX, newY, newDirection);
       }
-    }
+    };
 
-    if (typeof window !== "undefined") {
-      window.addEventListener("keydown", handleKeyPress)
-      return () => window.removeEventListener("keydown", handleKeyPress)
+    if (typeof window !== 'undefined') {
+      window.addEventListener('keydown', handleKeyPress);
+      return () => window.removeEventListener('keydown', handleKeyPress);
     }
     return undefined;
-  }, [character.position, battleState.inBattle, gameMap])
+  }, [character.position, battleState.inBattle, gameMap]);
 
   useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-    const ctx = canvas.getContext("2d")
-    if (!ctx) return
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-    const tileSize = 40
-    canvas.width = gameMap.width * tileSize
-    canvas.height = gameMap.height * tileSize
+    const tileSize = 40;
+    canvas.width = gameMap.width * tileSize;
+    canvas.height = gameMap.height * tileSize;
 
     // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw tiles with anime-style colors
     for (let y = 0; y < gameMap.height; y++) {
       for (let x = 0; x < gameMap.width; x++) {
-        const tileX = x * tileSize
-        const tileY = y * tileSize
+        const tileX = x * tileSize;
+        const tileY = y * tileSize;
 
         // Grass tiles with gradient
-        const gradient = ctx.createLinearGradient(tileX, tileY, tileX, tileY + tileSize)
-        gradient.addColorStop(0, "#4ade80")
-        gradient.addColorStop(1, "#22c55e")
-        ctx.fillStyle = gradient
-        ctx.fillRect(tileX, tileY, tileSize, tileSize)
+        const gradient = ctx.createLinearGradient(tileX, tileY, tileX, tileY + tileSize);
+        gradient.addColorStop(0, '#4ade80');
+        gradient.addColorStop(1, '#22c55e');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(tileX, tileY, tileSize, tileSize);
 
         // Tile border
-        ctx.strokeStyle = "#16a34a"
-        ctx.lineWidth = 1
-        ctx.strokeRect(tileX, tileY, tileSize, tileSize)
+        ctx.strokeStyle = '#16a34a';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(tileX, tileY, tileSize, tileSize);
       }
     }
 
     // Draw souls with glowing effect
     gameMap.souls.forEach((soul) => {
       if (!soul.rescued) {
-        const soulX = soul.x * tileSize + tileSize / 2
-        const soulY = soul.y * tileSize + tileSize / 2
+        const soulX = soul.x * tileSize + tileSize / 2;
+        const soulY = soul.y * tileSize + tileSize / 2;
 
         // Glow effect
-        const glowGradient = ctx.createRadialGradient(soulX, soulY, 5, soulX, soulY, 20)
-        glowGradient.addColorStop(0, "rgba(255, 255, 255, 0.8)")
-        glowGradient.addColorStop(1, "rgba(255, 255, 255, 0)")
-        ctx.fillStyle = glowGradient
-        ctx.fillRect(soul.x * tileSize, soul.y * tileSize, tileSize, tileSize)
+        const glowGradient = ctx.createRadialGradient(soulX, soulY, 5, soulX, soulY, 20);
+        glowGradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+        glowGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        ctx.fillStyle = glowGradient;
+        ctx.fillRect(soul.x * tileSize, soul.y * tileSize, tileSize, tileSize);
 
         // Soul orb
-        ctx.fillStyle = "#fbbf24"
-        ctx.beginPath()
-        ctx.arc(soulX, soulY, 8, 0, Math.PI * 2)
-        ctx.fill()
-        ctx.strokeStyle = "#f59e0b"
-        ctx.lineWidth = 2
-        ctx.stroke()
+        ctx.fillStyle = '#fbbf24';
+        ctx.beginPath();
+        ctx.arc(soulX, soulY, 8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#f59e0b';
+        ctx.lineWidth = 2;
+        ctx.stroke();
       }
-    })
+    });
 
     // Draw enemies with anime-style sprites
     gameMap.enemies.forEach((enemy) => {
       if (enemy.isAlive) {
-        const enemyX = enemy.position.x * tileSize + tileSize / 2
-        const enemyY = enemy.position.y * tileSize + tileSize / 2
+        const enemyX = enemy.position.x * tileSize + tileSize / 2;
+        const enemyY = enemy.position.y * tileSize + tileSize / 2;
 
         // Enemy shadow
-        ctx.fillStyle = "rgba(0, 0, 0, 0.3)"
-        ctx.beginPath()
-        ctx.ellipse(enemyX, enemyY + 15, 12, 6, 0, 0, Math.PI * 2)
-        ctx.fill()
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+        ctx.beginPath();
+        ctx.ellipse(enemyX, enemyY + 15, 12, 6, 0, 0, Math.PI * 2);
+        ctx.fill();
 
         // Enemy body based on type
-        let enemyColor = "#ef4444"
-        if (enemy.type === "witch") enemyColor = "#8b5cf6"
-        if (enemy.type === "wizard") enemyColor = "#3b82f6"
-        if (enemy.type === "zombie") enemyColor = "#22c55e"
-        if (enemy.type === "devil") enemyColor = "#dc2626"
+        let enemyColor = '#ef4444';
+        if (enemy.type === 'witch') enemyColor = '#8b5cf6';
+        if (enemy.type === 'wizard') enemyColor = '#3b82f6';
+        if (enemy.type === 'zombie') enemyColor = '#22c55e';
+        if (enemy.type === 'devil') enemyColor = '#dc2626';
 
-        ctx.fillStyle = enemyColor
-        ctx.beginPath()
-        ctx.arc(enemyX, enemyY, 12, 0, Math.PI * 2)
-        ctx.fill()
+        ctx.fillStyle = enemyColor;
+        ctx.beginPath();
+        ctx.arc(enemyX, enemyY, 12, 0, Math.PI * 2);
+        ctx.fill();
 
         // Enemy eyes
-        ctx.fillStyle = "#fbbf24"
-        ctx.beginPath()
-        ctx.arc(enemyX - 4, enemyY - 3, 2, 0, Math.PI * 2)
-        ctx.arc(enemyX + 4, enemyY - 3, 2, 0, Math.PI * 2)
-        ctx.fill()
+        ctx.fillStyle = '#fbbf24';
+        ctx.beginPath();
+        ctx.arc(enemyX - 4, enemyY - 3, 2, 0, Math.PI * 2);
+        ctx.arc(enemyX + 4, enemyY - 3, 2, 0, Math.PI * 2);
+        ctx.fill();
       }
-    })
+    });
 
     // Draw Lisa with anime-style character
-    const lisaX = character.position.x * tileSize + tileSize / 2
-    const lisaY = character.position.y * tileSize + tileSize / 2
+    const lisaX = character.position.x * tileSize + tileSize / 2;
+    const lisaY = character.position.y * tileSize + tileSize / 2;
 
     // Lisa's shadow
-    ctx.fillStyle = "rgba(0, 0, 0, 0.2)"
-    ctx.beginPath()
-    ctx.ellipse(lisaX, lisaY + 18, 10, 4, 0, 0, Math.PI * 2)
-    ctx.fill()
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+    ctx.beginPath();
+    ctx.ellipse(lisaX, lisaY + 18, 10, 4, 0, 0, Math.PI * 2);
+    ctx.fill();
 
     // Lisa's body (angel dress)
-    ctx.fillStyle = "#f8fafc"
-    ctx.beginPath()
-    ctx.arc(lisaX, lisaY, 10, 0, Math.PI * 2)
-    ctx.fill()
+    ctx.fillStyle = '#f8fafc';
+    ctx.beginPath();
+    ctx.arc(lisaX, lisaY, 10, 0, Math.PI * 2);
+    ctx.fill();
 
     // Lisa's hair (burgundy)
-    ctx.fillStyle = "#991b1b"
-    ctx.beginPath()
-    ctx.arc(lisaX, lisaY - 5, 8, 0, Math.PI * 2)
-    ctx.fill()
+    ctx.fillStyle = '#991b1b';
+    ctx.beginPath();
+    ctx.arc(lisaX, lisaY - 5, 8, 0, Math.PI * 2);
+    ctx.fill();
 
     // Lisa's halo
-    ctx.strokeStyle = "#fbbf24"
-    ctx.lineWidth = 2
-    ctx.beginPath()
-    ctx.arc(lisaX, lisaY - 15, 6, 0, Math.PI * 2)
-    ctx.stroke()
+    ctx.strokeStyle = '#fbbf24';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(lisaX, lisaY - 15, 6, 0, Math.PI * 2);
+    ctx.stroke();
 
     // Lisa's wings
-    ctx.fillStyle = "rgba(255, 255, 255, 0.8)"
-    ctx.beginPath()
-    ctx.ellipse(lisaX - 12, lisaY, 8, 12, -0.3, 0, Math.PI * 2)
-    ctx.ellipse(lisaX + 12, lisaY, 8, 12, 0.3, 0, Math.PI * 2)
-    ctx.fill()
-  }, [character.position, gameMap, battleState])
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.beginPath();
+    ctx.ellipse(lisaX - 12, lisaY, 8, 12, -0.3, 0, Math.PI * 2);
+    ctx.ellipse(lisaX + 12, lisaY, 8, 12, 0.3, 0, Math.PI * 2);
+    ctx.fill();
+  }, [character.position, gameMap, battleState]);
 
   const moveCharacter = (newX: number, newY: number, direction: string) => {
     // Check for enemy collision
-    const enemy = gameMap.enemies.find((e) => e.isAlive && e.position.x === newX && e.position.y === newY)
+    const enemy = gameMap.enemies.find(
+      (e) => e.isAlive && e.position.x === newX && e.position.y === newY,
+    );
 
     if (enemy) {
-      startBattle(enemy)
-      return
+      startBattle(enemy);
+      return;
     }
 
     // Check for soul rescue
-    const soul = gameMap.souls.find((s) => !s.rescued && s.x === newX && s.y === newY)
+    const soul = gameMap.souls.find((s) => !s.rescued && s.x === newX && s.y === newY);
 
     if (soul) {
-      rescueSoul(soul)
+      rescueSoul(soul);
     }
 
     setCharacter((prev) => ({
       ...prev,
       position: { x: newX, y: newY },
       direction: direction as any,
-    }))
-  }
+    }));
+  };
 
   const rescueSoul = (soul: { x: number; y: number; rescued: boolean }) => {
     setGameMap((prev) => ({
       ...prev,
-      souls: prev.souls.map((s) => (s.x === soul.x && s.y === soul.y ? { ...s, rescued: true } : s)),
-    }))
+      souls: prev.souls.map((s) =>
+        s.x === soul.x && s.y === soul.y ? { ...s, rescued: true } : s,
+      ),
+    }));
 
     setActiveQuests((prev) =>
       prev.map((quest) => {
-        if (quest.id === "rescue_souls") {
-          const newProgress = quest.progress + 1
+        if (quest.id === 'rescue_souls') {
+          const newProgress = quest.progress + 1;
           return {
             ...quest,
             progress: newProgress,
             completed: newProgress >= quest.maxProgress,
-          }
+          };
         }
-        return quest
+        return quest;
       }),
-    )
+    );
 
     setCharacter((prev) => ({
       ...prev,
       experience: prev.experience + 20,
       mp: Math.min(prev.maxMp, prev.mp + 10),
-    }))
+    }));
 
-    setGameMessage("✨ Soul rescued! The light guides them home.")
-    setTimeout(() => setGameMessage(""), 3000)
-  }
+    setGameMessage('✨ Soul rescued! The light guides them home.');
+    setTimeout(() => setGameMessage(''), 3000);
+  };
 
   const startBattle = (enemy: Enemy) => {
     setBattleState({
@@ -415,79 +419,79 @@ export default function RPGAdventure() {
       enemy: enemy,
       playerTurn: true,
       battleLog: [`A wild ${enemy.name} appears!`],
-    })
-  }
+    });
+  };
 
   const performAttack = (skillName?: string) => {
-    if (!battleState.enemy || !battleState.playerTurn) return
+    if (!battleState.enemy || !battleState.playerTurn) return;
 
-    let damage = character.attack
-    let mpCost = 0
-    let attackName = "Basic Attack"
+    let damage = character.attack;
+    let mpCost = 0;
+    let attackName = 'Basic Attack';
 
     if (skillName) {
       switch (skillName) {
-        case "Divine Strike":
-          damage = Math.floor(character.attack * 1.5)
-          mpCost = 15
-          attackName = "Divine Strike"
-          break
-        case "Healing Light":
-          const healAmount = Math.floor(character.maxHp * 0.3)
+        case 'Divine Strike':
+          damage = Math.floor(character.attack * 1.5);
+          mpCost = 15;
+          attackName = 'Divine Strike';
+          break;
+        case 'Healing Light':
+          const healAmount = Math.floor(character.maxHp * 0.3);
           setCharacter((prev) => ({
             ...prev,
             hp: Math.min(prev.maxHp, prev.hp + healAmount),
             mp: prev.mp - 20,
-          }))
+          }));
           setBattleState((prev) => ({
             ...prev,
             battleLog: [...prev.battleLog, `Lisa heals for ${healAmount} HP!`],
             playerTurn: false,
-          }))
-          setTimeout(enemyTurn, 1500)
-          return
+          }));
+          setTimeout(enemyTurn, 1500);
+          return;
       }
     }
 
     if (character.mp < mpCost) {
-      setGameMessage("Not enough MP!")
-      return
+      setGameMessage('Not enough MP!');
+      return;
     }
 
-    const finalDamage = Math.max(1, damage - battleState.enemy.defense)
-    const newEnemyHp = Math.max(0, battleState.enemy.hp - finalDamage)
+    const finalDamage = Math.max(1, damage - battleState.enemy.defense);
+    const newEnemyHp = Math.max(0, battleState.enemy.hp - finalDamage);
 
-    setCharacter((prev) => ({ ...prev, mp: prev.mp - mpCost }))
+    setCharacter((prev) => ({ ...prev, mp: prev.mp - mpCost }));
 
     setBattleState((prev) => ({
       ...prev,
       enemy: prev.enemy ? { ...prev.enemy, hp: newEnemyHp } : null,
       battleLog: [...prev.battleLog, `Lisa uses ${attackName} for ${finalDamage} damage!`],
       playerTurn: false,
-    }))
+    }));
 
     if (newEnemyHp <= 0) {
       setTimeout(() => {
-        defeatEnemy()
-      }, 1500)
+        defeatEnemy();
+      }, 1500);
     } else {
-      setTimeout(enemyTurn, 1500)
+      setTimeout(enemyTurn, 1500);
     }
-  }
+  };
 
   const enemyTurn = () => {
-    if (!battleState.enemy || battleState.enemy.hp <= 0) return
+    if (!battleState.enemy || battleState.enemy.hp <= 0) return;
 
-    const damage = Math.max(1, battleState.enemy.attack - character.defense)
-    const newPlayerHp = Math.max(0, character.hp - damage)
+    const damage = Math.max(1, battleState.enemy.attack - character.defense);
+    const newPlayerHp = Math.max(0, character.hp - damage);
 
-    setCharacter((prev) => ({ ...prev, hp: newPlayerHp }))
+    setCharacter((prev) => ({ ...prev, hp: newPlayerHp }));
 
     setBattleState((prev) => ({
       ...prev,
       battleLog: [...prev.battleLog, `${prev.enemy?.name} attacks for ${damage} damage!`],
       playerTurn: true,
-    }))
+    }));
 
     if (newPlayerHp <= 0) {
       setTimeout(() => {
@@ -496,56 +500,56 @@ export default function RPGAdventure() {
           enemy: null,
           playerTurn: true,
           battleLog: [],
-        })
-        setGameMessage("💀 Defeated! Lisa respawns at the starting point.")
+        });
+        setGameMessage('💀 Defeated! Lisa respawns at the starting point.');
         setCharacter((prev) => ({
           ...prev,
           hp: prev.maxHp,
           position: { x: 5, y: 5 },
-        }))
-      }, 2000)
+        }));
+      }, 2000);
     }
-  }
+  };
 
   const defeatEnemy = () => {
-    if (!battleState.enemy) return
+    if (!battleState.enemy) return;
 
-    const enemy = battleState.enemy
+    const enemy = battleState.enemy;
 
     setGameMap((prev) => ({
       ...prev,
       enemies: prev.enemies.map((e) => (e.id === enemy.id ? { ...e, isAlive: false } : e)),
-    }))
+    }));
 
     setCharacter((prev) => ({
       ...prev,
       experience: prev.experience + enemy.reward.experience,
-    }))
+    }));
 
     setActiveQuests((prev) =>
       prev.map((quest) => {
-        if (quest.id === "defeat_demons") {
-          const newProgress = quest.progress + 1
+        if (quest.id === 'defeat_demons') {
+          const newProgress = quest.progress + 1;
           return {
             ...quest,
             progress: newProgress,
             completed: newProgress >= quest.maxProgress,
-          }
+          };
         }
-        return quest
+        return quest;
       }),
-    )
+    );
 
     setBattleState({
       inBattle: false,
       enemy: null,
       playerTurn: true,
       battleLog: [],
-    })
+    });
 
-    setGameMessage(`⚔️ ${enemy.name} defeated! Gained ${enemy.reward.experience} XP!`)
-    setTimeout(() => setGameMessage(""), 3000)
-  }
+    setGameMessage(`⚔️ ${enemy.name} defeated! Gained ${enemy.reward.experience} XP!`);
+    setTimeout(() => setGameMessage(''), 3000);
+  };
 
   return (
     <div className="space-y-4">
@@ -577,7 +581,10 @@ export default function RPGAdventure() {
                 <Zap className="h-4 w-4 text-blue-500" />
                 <span className="text-sm font-medium">MP</span>
               </div>
-              <Progress value={(character.mp / character.maxMp) * 100} className="h-2 bg-blue-100" />
+              <Progress
+                value={(character.mp / character.maxMp) * 100}
+                className="h-2 bg-blue-100"
+              />
               <p className="text-xs text-muted-foreground mt-1">
                 {character.mp}/{character.maxMp}
               </p>
@@ -619,7 +626,9 @@ export default function RPGAdventure() {
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => moveCharacter(character.position.x, Math.max(0, character.position.y - 1), "up")}
+                  onClick={() =>
+                    moveCharacter(character.position.x, Math.max(0, character.position.y - 1), 'up')
+                  }
                   disabled={battleState.inBattle}
                   className="bg-white/80 hover:bg-white"
                 >
@@ -629,7 +638,13 @@ export default function RPGAdventure() {
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => moveCharacter(Math.max(0, character.position.x - 1), character.position.y, "left")}
+                  onClick={() =>
+                    moveCharacter(
+                      Math.max(0, character.position.x - 1),
+                      character.position.y,
+                      'left',
+                    )
+                  }
                   disabled={battleState.inBattle}
                   className="bg-white/80 hover:bg-white"
                 >
@@ -644,7 +659,11 @@ export default function RPGAdventure() {
                   size="sm"
                   variant="outline"
                   onClick={() =>
-                    moveCharacter(Math.min(gameMap.width - 1, character.position.x + 1), character.position.y, "right")
+                    moveCharacter(
+                      Math.min(gameMap.width - 1, character.position.x + 1),
+                      character.position.y,
+                      'right',
+                    )
                   }
                   disabled={battleState.inBattle}
                   className="bg-white/80 hover:bg-white"
@@ -656,7 +675,11 @@ export default function RPGAdventure() {
                   size="sm"
                   variant="outline"
                   onClick={() =>
-                    moveCharacter(character.position.x, Math.min(gameMap.height - 1, character.position.y + 1), "down")
+                    moveCharacter(
+                      character.position.x,
+                      Math.min(gameMap.height - 1, character.position.y + 1),
+                      'down',
+                    )
                   }
                   disabled={battleState.inBattle}
                   className="bg-white/80 hover:bg-white"
@@ -701,7 +724,7 @@ export default function RPGAdventure() {
                 Attack
               </Button>
               <Button
-                onClick={() => performAttack("Divine Strike")}
+                onClick={() => performAttack('Divine Strike')}
                 disabled={!battleState.playerTurn || character.mp < 15}
                 className="bg-yellow-500 hover:bg-yellow-600"
               >
@@ -709,14 +732,18 @@ export default function RPGAdventure() {
                 Divine Strike
               </Button>
               <Button
-                onClick={() => performAttack("Healing Light")}
+                onClick={() => performAttack('Healing Light')}
                 disabled={!battleState.playerTurn || character.mp < 20}
                 className="bg-green-500 hover:bg-green-600"
               >
                 <Sparkles className="h-4 w-4 mr-1" />
                 Heal
               </Button>
-              <Button variant="outline" disabled={!battleState.playerTurn} className="bg-blue-100 hover:bg-blue-200">
+              <Button
+                variant="outline"
+                disabled={!battleState.playerTurn}
+                className="bg-blue-100 hover:bg-blue-200"
+              >
                 <Shield className="h-4 w-4 mr-1" />
                 Defend
               </Button>
@@ -749,7 +776,10 @@ export default function RPGAdventure() {
                 {quest.completed && <Badge className="bg-green-500">Complete!</Badge>}
               </div>
               <p className="text-sm text-gray-600 mb-2">{quest.description}</p>
-              <Progress value={(quest.progress / quest.maxProgress) * 100} className="h-2 bg-purple-100" />
+              <Progress
+                value={(quest.progress / quest.maxProgress) * 100}
+                className="h-2 bg-purple-100"
+              />
               <p className="text-xs text-muted-foreground mt-1">
                 {quest.progress}/{quest.maxProgress}
               </p>
@@ -771,11 +801,11 @@ export default function RPGAdventure() {
       <Card className="bg-gradient-to-r from-gray-50 to-slate-50 border-2 border-gray-200">
         <CardContent className="p-4">
           <p className="text-sm text-gray-600 text-center">
-            Use WASD or Arrow Keys to move • Walk into enemies to battle • Rescue glowing souls • Complete quests to
-            progress
+            Use WASD or Arrow Keys to move • Walk into enemies to battle • Rescue glowing souls •
+            Complete quests to progress
           </p>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

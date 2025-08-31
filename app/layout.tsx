@@ -1,21 +1,22 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { GeistSans } from "geist/font/sans"
-import { GeistMono } from "geist/font/mono"
-import { Analytics } from "@vercel/analytics/next"
-import { Suspense } from "react"
-import "./globals.css"
+import type React from 'react';
+import type { Metadata } from 'next';
+import { GeistSans } from 'geist/font/sans';
+import { GeistMono } from 'geist/font/mono';
+import { Analytics } from '@vercel/analytics/next';
+import { Suspense } from 'react';
+import './globals.css';
 
 export const metadata: Metadata = {
-  title: "Guardian Angel LISA - Telegram Mini App Game",
-  description: "Tap-to-earn mining game with 3D RPG adventure featuring Guardian Angel Lisa on TON blockchain",
-  generator: "v0.app",
-}
+  title: 'Guardian Angel LISA - Telegram Mini App Game',
+  description:
+    'Tap-to-earn mining game with 3D RPG adventure featuring Guardian Angel Lisa on TON blockchain',
+  generator: 'v0.app',
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   return (
     <html lang="en">
@@ -28,5 +29,5 @@ export default function RootLayout({
         <Analytics />
       </body>
     </html>
-  )
+  );
 }
