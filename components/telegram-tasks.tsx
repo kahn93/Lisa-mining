@@ -21,6 +21,7 @@ interface TelegramTask {
 }
 
 export function TelegramTasks() {
+  const [hydrated, setHydrated] = useState(false);
   const [tasks, setTasks] = useState<TelegramTask[]>([
     {
       id: "join-channel",
@@ -76,6 +77,7 @@ export function TelegramTasks() {
   const [totalRewards, setTotalRewards] = useState(0)
 
   useEffect(() => {
+    setHydrated(true);
     const completed = tasks.filter((task) => task.completed).length
     const rewards = tasks.filter((task) => task.completed).reduce((sum, task) => sum + task.reward, 0)
     setCompletedTasks(completed)
@@ -123,6 +125,14 @@ export function TelegramTasks() {
     }
     // Reset rewards counter
     setTotalRewards(0)
+  }
+
+  if (!hydrated) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-400"></div>
+      </div>
+    );
   }
 
   return (

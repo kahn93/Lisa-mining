@@ -76,10 +76,12 @@ const telegramConfig = {
 }
 
 export function TelegramIntegration() {
+  const [hydrated, setHydrated] = useState(false);
   const [telegramUser, setTelegramUser] = useState<TelegramUser | null>(null)
   const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
+    setHydrated(true);
     if (typeof window !== "undefined" && window.Telegram?.WebApp) {
       const tg = window.Telegram.WebApp
 
@@ -129,7 +131,7 @@ export function TelegramIntegration() {
     }
   }
 
-  if (!isReady) {
+  if (!hydrated || !isReady) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-400"></div>

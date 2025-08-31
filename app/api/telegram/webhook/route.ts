@@ -25,6 +25,7 @@ export async function POST(request: NextRequest) {
             `💎 Earn LISA tokens through mining and adventures\n` +
             `⚔️ Fight demons and save souls in RPG mode\n\n` +
             `Type /game to start playing!`,
+          botToken
         )
       } else if (text === "/game") {
         await sendMessage(chatId, "Launch the Guardian Angel LISA game to start mining LISA tokens!", botToken)

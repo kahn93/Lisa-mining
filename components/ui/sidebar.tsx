@@ -66,8 +66,13 @@ function SidebarProvider({
   open?: boolean
   onOpenChange?: (open: boolean) => void
 }) {
+  const [hydrated, setHydrated] = React.useState(false);
   const isMobile = useIsMobile()
   const [openMobile, setOpenMobile] = React.useState(false)
+
+  React.useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   // This is the internal state of the sidebar.
   // We use openProp and setOpenProp for control from outside the component.
@@ -130,6 +135,10 @@ function SidebarProvider({
     }),
     [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
   )
+
+  if (!hydrated) {
+    return null;
+  }
 
   return (
     <SidebarContext.Provider value={contextValue}>
