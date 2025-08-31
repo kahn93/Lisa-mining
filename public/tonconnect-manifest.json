@@ -1,0 +1,12 @@
+{
+  "name": "Lisa Airdrop Game",
+  "description": "LISA is not just a cryptocurrency — it's a movement. A movement to uplift the underserved, empower the forgotten, and bring hope to those who have lost it.",
+  "url": "https://main.d2ibjv4d7heza0.amplifyapp.com",
+  "iconUrl": "https://main.d2ibjv4d7heza0.amplifyapp.com/image/angel.png",
+  "bridgeUrl": "https://bridge.tonapi.io/bridge",
+  "jettonMasterAddress": "EQA4-TXXumNx_om3IlqSUaXVHrveaCm-sVpp3r7S0SnCfLB2",
+  "cryptocurrency": {
+    "name": "Guardian Angel",
+    "symbol": "LISA"
+  }
+}

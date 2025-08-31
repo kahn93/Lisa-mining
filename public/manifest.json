@@ -1,0 +1,28 @@
+{
+  "name": "Guardian Angel LISA",
+  "short_name": "LISA Game",
+  "description": "Tap-to-earn mining game with Guardian Angel LISA on TON blockchain",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#10b981",
+  "orientation": "portrait",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/placeholder.svg?height=192&width=192",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/placeholder.svg?height=512&width=512",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["games", "entertainment"],
+  "lang": "en",
+  "dir": "ltr"
+}

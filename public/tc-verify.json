@@ -1,0 +1,21 @@
+{
+  "name": "Lisa Airdrop Game",
+  "url": "https://main.d2ibjv4d7heza0.amplifyapp.com",
+  "iconUrl": "https://main.d2ibjv4d7heza0.amplifyapp.com/image/angel.png",
+  "termsOfUseUrl": "https://main.d2ibjv4d7heza0.amplifyapp.com/terms",
+  "privacyPolicyUrl": "https://main.d2ibjv4d7heza0.amplifyapp.com/privacy",
+  "payload": "pZHWw-cg18oAAAAAaJT7dOvXEiaqrxL8OvS8dedJqa0Y57uC_E6YOUla4ZJG8LPg",
+  "bridge": [
+    {
+      "type": "sse",
+      "url": "https://bridge.tonapi.io/bridge"
+    },
+    {
+      "type": "js",
+      "url": "https://bridge.tonapi.io/bridge"
+    }
+  ],
+  "manifestUrl": "https://main.d2ibjv4d7heza0.amplifyapp.com/tonconnect-manifest.json",
+  "version": "1.0.0",
+  "platforms": ["tg-web-app"]
+}
