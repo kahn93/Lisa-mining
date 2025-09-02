@@ -92,7 +92,7 @@ export function TelegramTasks() {
 
     if (task.url && (task.type === 'join' || task.type === 'follow')) {
       // Open external link
-      if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+      if (typeof window !== 'undefined' && typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
         window.Telegram.WebApp.openLink(task.url);
       } else if (typeof window !== 'undefined') {
         window.open(task.url, '_blank');

@@ -1,17 +1,18 @@
 /* eslint-env browser */
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import React from 'react';
 import { TonPaymentSystem } from '@/components/ton-payment-system';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { useState } from 'react';
 
 interface GameStoreProps {
-  wallet: any;
-  tonConnectUI: any;
+  wallet: { address: string; balance: number; }; // Replace with the actual structure of the wallet object
+  tonConnectUI: unknown; // Replace with the actual type if known
 }
 
 interface PurchasedItem {
@@ -22,12 +23,22 @@ interface PurchasedItem {
   active: boolean;
 }
 
+interface Item {
+  id: string;
+  name: string;
+  type: 'multiplier' | 'subscription' | 'energy' | 'weapon' | 'skin' | 'nft' | 'power';
+  duration?: number;
+}
+
 export function GameStore({ wallet, tonConnectUI }: GameStoreProps) {
   const [purchasedItems, setPurchasedItems] = useState<PurchasedItem[]>([]);
   const [activeTab, setActiveTab] = useState('premium');
   const { toast } = useToast();
 
-  const handlePaymentSuccess = (item: any, transactionHash: string) => {
+  // Use wallet and tonConnectUI for future integrations
+  globalThis.console.log(wallet, tonConnectUI);
+
+  const handlePaymentSuccess = (item: Item, transactionHash: string) => {
     const purchasedItem: PurchasedItem = {
       id: item.id,
       name: item.name,
@@ -43,54 +54,42 @@ export function GameStore({ wallet, tonConnectUI }: GameStoreProps) {
   };
 
   const handlePaymentError = (error: string) => {
-    console.error('Payment error:', error);
+    globalThis.console.error('Payment error:', error);
   };
 
-  const applyItemEffects = (item: any) => {
+  const applyItemEffects = (item: Item) => {
     // This would integrate with your game state management
-    switch (item.type) {
-      case 'multiplier':
-        // Apply mining multiplier
-        if (typeof window !== 'undefined') {
-          localStorage.setItem(`multiplier_${item.id}`, 'true');
+    if (typeof globalThis !== 'undefined' && typeof globalThis.localStorage !== 'undefined') {
+      switch (item.type) {
+        case 'multiplier':
+          // Apply mining multiplier
+          globalThis.localStorage.setItem(`multiplier_${item.id}`, 'true');
+          break;
+        case 'subscription': {
+          // Activate subscription
+          const expiryDate = new Date();
+          expiryDate.setDate(expiryDate.getDate() + (item.duration || 30));
+          globalThis.localStorage.setItem(`subscription_${item.id}`, expiryDate.toISOString());
+          break;
         }
-        break;
-      case 'subscription':
-        // Activate subscription
-        const expiryDate = new Date();
-        expiryDate.setDate(expiryDate.getDate() + (item.duration || 30));
-        if (typeof window !== 'undefined') {
-          localStorage.setItem(`subscription_${item.id}`, expiryDate.toISOString());
-        }
-        break;
-      case 'energy':
-        // Apply energy boost
-        if (typeof window !== 'undefined') {
-          localStorage.setItem(`energy_boost_${item.id}`, Date.now().toString());
-        }
-        break;
-      case 'weapon':
-      case 'skin':
-      case 'nft':
-        // Unlock item in inventory
-        if (typeof window !== 'undefined') {
-          localStorage.setItem(`owned_${item.id}`, 'true');
-        }
-        break;
+        case 'energy':
+          // Apply energy boost
+          globalThis.localStorage.setItem(`energy_boost_${item.id}`, Date.now().toString());
+          break;
+        case 'weapon':
+        case 'skin':
+        case 'nft':
+          // Unlock item in inventory
+          globalThis.localStorage.setItem(`owned_${item.id}`, 'true');
+          break;
+      }
+
+      toast({
+        title: 'Item Activated!',
+        description: `${item.name} has been added to your account`,
+      });
     }
-
-    toast({
-      title: 'Item Activated!',
-      description: `${item.name} has been added to your account`,
-    });
   };
-
-  // Hydration guard for locale formatting and random/now
-  const [hydrated, setHydrated] = useState(false);
-  useEffect(() => { setHydrated(true); }, []);
-
-  const safeNow = () => (typeof window !== 'undefined' ? Date.now() : 0);
-  const safeRandom = () => (typeof window !== 'undefined' ? Math.random() : 0.5);
 
   const inGameItems = [
     {
@@ -130,7 +129,7 @@ export function GameStore({ wallet, tonConnectUI }: GameStoreProps) {
   return (
     <div className="space-y-6 pb-20">
       <div className="text-center">
-        <h1 className="text-2xl font-bold text-primary mb-2">Guardian's Store</h1>
+        <h1 className="text-2xl font-bold text-primary mb-2">Guardian&apos;s Store</h1>
         <p className="text-sm text-muted-foreground">
           Enhance your journey with premium items and upgrades
         </p>
@@ -193,7 +192,7 @@ export function GameStore({ wallet, tonConnectUI }: GameStoreProps) {
                     <div>
                       <h3 className="font-semibold">{item.name}</h3>
                       <p className="text-xs text-muted-foreground">
-                        Purchased: {hydrated ? item.purchaseDate.toLocaleDateString() : ''}
+                        Purchased: {item.purchaseDate.toLocaleDateString()}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         TX: {item.transactionHash.slice(0, 10)}...
@@ -219,7 +218,7 @@ export function GameStore({ wallet, tonConnectUI }: GameStoreProps) {
               <div key={item.transactionHash} className="flex justify-between items-center text-sm">
                 <span>{item.name}</span>
                 <span className="text-muted-foreground">
-                  {hydrated ? item.purchaseDate.toLocaleDateString() : ''}
+                  {item.purchaseDate.toLocaleDateString()}
                 </span>
               </div>
             ))}

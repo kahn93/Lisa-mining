@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -377,7 +378,7 @@ export default function RPGAdventure() {
     setCharacter((prev) => ({
       ...prev,
       position: { x: newX, y: newY },
-      direction: direction as any,
+      direction: direction as 'up' | 'down' | 'left' | 'right',
     }));
   };
 

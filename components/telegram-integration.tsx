@@ -58,7 +58,7 @@ declare global {
         showAlert: (message: string) => void;
         showConfirm: (message: string, callback: (confirmed: boolean) => void) => void;
         openLink: (url: string) => void;
-        shareToStory: (mediaUrl: string, params?: any) => void;
+        shareToStory: (mediaUrl: string, params?: Record<string, unknown>) => void;
         openTelegramLink: (url: string) => void;
       };
     };
@@ -74,9 +74,9 @@ interface TelegramUser {
 }
 
 const telegramConfig = {
-  botToken: process.env.TELEGRAM_BOT_TOKEN,
-  botUsername: process.env.TELEGRAM_BOT_USERNAME || 'LisaToken_Bot',
-  botUrl: process.env.TELEGRAM_BOT_URL || 'https://t.me/LisaToken_Bot',
+  botToken: typeof window !== 'undefined' && typeof (window as { __NEXT_PUBLIC_TELEGRAM_BOT_TOKEN?: string }).__NEXT_PUBLIC_TELEGRAM_BOT_TOKEN !== 'undefined' ? (window as { __NEXT_PUBLIC_TELEGRAM_BOT_TOKEN: string }).__NEXT_PUBLIC_TELEGRAM_BOT_TOKEN : '',
+  botUsername: typeof window !== 'undefined' && '__NEXT_PUBLIC_TELEGRAM_BOT_USERNAME' in window ? (window as unknown as { __NEXT_PUBLIC_TELEGRAM_BOT_USERNAME?: string }).__NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'LisaToken_Bot' : 'LisaToken_Bot',
+  botUrl: typeof window !== 'undefined' && '__NEXT_PUBLIC_TELEGRAM_BOT_URL' in window ? (window as { __NEXT_PUBLIC_TELEGRAM_BOT_URL?: string }).__NEXT_PUBLIC_TELEGRAM_BOT_URL || 'https://t.me/LisaToken_Bot' : 'https://t.me/LisaToken_Bot',
 };
 
 export function TelegramIntegration() {

@@ -1,7 +1,7 @@
 "use client";
-import React from 'react';
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // @ts-nocheck
+import React from 'react';
 import { useEffect, useState } from 'react';
 
 
@@ -196,18 +196,18 @@ interface GameState {
   totalPoints: number;
 }
 
-interface Achievement {
+export interface Achievement {
   id: string;
   name: string;
   description: string;
   reward: number;
   condition: string;
   completed: boolean;
-  claimed: boolean; // Added claimed property
+  claimed: boolean;
   icon: string;
 }
 
-interface Upgrade {
+export interface Upgrade {
   id: string;
   name: string;
   description: string;
@@ -275,7 +275,7 @@ const TransactionMonitor = () => {
 
 export default function GuardianAngelLisaGame() {
   const [activeTab, setActiveTab] = useState('mining');
-  const [gameState, setGameState] = useState<GameState>({
+  const [gameStats, setGameStats] = useState<GameState>({
     coins: 0,
     energy: 100,
     maxEnergy: 100,
@@ -351,7 +351,7 @@ export default function GuardianAngelLisaGame() {
     totalPoints: 0,
   });
 
-  const [wallet, setWallet] = useState(null);
+  const [wallet, setWallet] = useState<{ address: string; balance: number; } | null>(null);
   const [tonConnectUI, setTonConnectUI] = useState<TonConnectUI | null>(null);
   const [newAchievements, setNewAchievements] = useState([]);
   const [walletConnected, setWalletConnected] = useState(false);
@@ -726,17 +726,17 @@ export default function GuardianAngelLisaGame() {
   useEffect(() => {
     const checkDailyCheckIn = () => {
       const today = new Date().toDateString();
-      const lastCheckIn = gameState.lastCheckIn;
+      const lastCheckIn = gameStats.lastCheckIn;
       setCanCheckIn(lastCheckIn !== today);
     };
 
     checkDailyCheckIn();
     const interval = globalThis.setInterval(checkDailyCheckIn, 60000);
     return () => globalThis.clearInterval(interval);
-  }, [gameState.lastCheckIn]);
+  }, [gameStats.lastCheckIn]);
 
   const addPoints = (points: number, activity: string) => {
-    setGameState((prev) => ({
+    setGameStats((prev) => ({
       ...prev,
       totalPoints: prev.totalPoints + points,
     }));
@@ -751,7 +751,7 @@ export default function GuardianAngelLisaGame() {
       const currentPlayer = {
         username: 'player_' + Math.random().toString(36).substr(2, 9), // Mock username
         walletAddress: walletAddress || '',
-        totalPoints: gameState.totalPoints + newPoints,
+        totalPoints: gameStats.totalPoints + newPoints,
         allocationPercentage: 0,
         lastUpdated: Date.now(),
       };
@@ -775,7 +775,7 @@ export default function GuardianAngelLisaGame() {
   const handleDailyCheckIn = async () => {
     if (!walletConnected || !dailyCheckIn.canCheckIn) return;
 
-    setDailyCheckIn((prev: typeof dailyCheckIn) => ({ ...prev, isProcessing: true }));
+    setDailyCheckIn((prev) => ({ ...prev, isProcessing: true }));
 
     try {
       // Simulate TON payment of 0.5 TON
@@ -785,7 +785,7 @@ export default function GuardianAngelLisaGame() {
 
       // Process payment and reward
       setWalletBalance((prev: number) => prev - 0.5);
-      setGameState((prev) => ({
+      setGameStats((prev) => ({
         ...prev,
         coins: prev.coins + 1000,
       }));
@@ -829,13 +829,13 @@ export default function GuardianAngelLisaGame() {
   };
 
   const handleTap = () => {
-    if (gameState.energy <= 0) return;
+    if (gameStats.energy <= 0) return;
 
     setTapAnimation(true);
     globalThis.setTimeout(() => setTapAnimation(false), 150);
 
-    const reward = gameState.miningPower;
-    setGameState((prev) => ({
+    const reward = gameStats.miningPower;
+    setGameStats((prev) => ({
       ...prev,
       coins: prev.coins + reward,
       energy: Math.max(0, prev.energy - 1),
@@ -853,13 +853,13 @@ export default function GuardianAngelLisaGame() {
   };
 
   const handleMining = () => {
-    if (gameState.energy <= 0) return;
+    if (gameStats.energy <= 0) return;
 
     setTapAnimation(true);
     globalThis.setTimeout(() => setTapAnimation(false), 150);
 
     // Calculate rewards with multipliers
-    const baseReward = gameState.miningPower;
+    const baseReward = gameStats.miningPower;
     let bonusMultiplier = 1;
 
     // Apply active boosts
@@ -872,7 +872,7 @@ export default function GuardianAngelLisaGame() {
 
     const finalReward = Math.floor(baseReward * bonusMultiplier);
 
-    setGameState((prev) => ({
+    setGameStats((prev) => ({
       ...prev,
       coins: prev.coins + finalReward,
       energy: Math.max(0, prev.energy - 1),
@@ -893,12 +893,12 @@ export default function GuardianAngelLisaGame() {
   };
 
   const purchaseUpgrade = (upgradeId: string) => {
-    const upgrade = gameState.upgrades.find((u: { id: string; }) => u.id === upgradeId);
-    if (!upgrade || upgrade.level >= upgrade.maxLevel || gameState.coins < upgrade.cost) {
+    const upgrade = gameStats.upgrades.find((u: { id: string; }) => u.id === upgradeId);
+    if (!upgrade || upgrade.level >= upgrade.maxLevel || gameStats.coins < upgrade.cost) {
       return;
     }
 
-    setGameState((prev) => ({
+    setGameStats((prev) => ({
       ...prev,
       coins: prev.coins - upgrade.cost,
       upgrades: prev.upgrades.map((u) => (u.id === upgradeId ? { ...u, level: u.level + 1 } : u)),
@@ -916,7 +916,7 @@ export default function GuardianAngelLisaGame() {
   }
   return (
     <div>
-      {tonConnectUI && wallet && <GameHeader gameStats={gameState} wallet={wallet} tonConnectUI={tonConnectUI} />}
+      {tonConnectUI && wallet && <GameHeader gameStats={gameStats} wallet={wallet} tonConnectUI={tonConnectUI} />}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="mb-4 flex flex-wrap gap-2 justify-center">
           <TabsTrigger value="mining">Mining</TabsTrigger>
@@ -928,13 +928,37 @@ export default function GuardianAngelLisaGame() {
           <TabsTrigger value="tasks">Tasks</TabsTrigger>
         </TabsList>
         <TabsContent value="mining">
-          <MiningInterface gameStats={gameState} setGameStats={setGameState} />
+          <MiningInterface gameStats={gameStats} setGameStatsAction={(stats) => {
+            if (typeof stats === 'function') {
+              setGameStats((prev) => ({
+                ...prev,
+                ...stats,
+              }));
+            } else {
+              setGameStats((prev) => ({
+                ...prev,
+                ...stats,
+                experienceToNext: stats.experienceToNext ?? prev.experienceToNext,
+                achievements: stats.achievements ?? prev.achievements,
+                upgrades: stats.upgrades ?? prev.upgrades,
+                totalTaps: stats.totalTaps ?? prev.totalTaps,
+                totalCoinsEarned: stats.totalCoinsEarned ?? prev.totalCoinsEarned,
+                maxCombo: stats.maxCombo ?? prev.maxCombo,
+                daysPlayed: stats.daysPlayed ?? prev.daysPlayed,
+                prestigeLevel: stats.prestigeLevel ?? prev.prestigeLevel,
+                prestigePoints: stats.prestigePoints ?? prev.prestigePoints,
+                lastCheckIn: stats.lastCheckIn ?? prev.lastCheckIn,
+                checkInStreak: stats.checkInStreak ?? prev.checkInStreak,
+                totalPoints: stats.totalPoints ?? prev.totalPoints,
+              }));
+            }
+          }} />
         </TabsContent>
         <TabsContent value="store">
-          <GameStore wallet={wallet} tonConnectUI={tonConnectUI} />
+          {wallet && <GameStore wallet={wallet} tonConnectUI={tonConnectUI} />}
         </TabsContent>
         <TabsContent value="achievements">
-          <Achievements gameStats={gameState} />
+          <Achievements gameStats={gameStats} />
         </TabsContent>
         <TabsContent value="leaderboard">
           <Leaderboard />

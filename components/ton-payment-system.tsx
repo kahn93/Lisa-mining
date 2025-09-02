@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useState, useCallback } from 'react';
 import { useTonWallet, useTonConnectUI } from '@tonconnect/ui-react';
 import { toNano, beginCell } from '@ton/core';
@@ -141,10 +142,10 @@ export function TonPaymentSystem({ onPaymentSuccess, onPaymentError }: TonPaymen
             description: `You've successfully purchased ${item.name}`,
           });
         }, 3000);
-      } catch (error: any) {
+      } catch (error: unknown) {
         setTransactionStatus('error');
         setIsProcessing(false);
-        const errorMessage = error.message || 'Transaction failed';
+        const errorMessage = error instanceof Error ? error.message : 'Transaction failed';
         onPaymentError(errorMessage);
 
         toast({
