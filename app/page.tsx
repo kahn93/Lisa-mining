@@ -1,7 +1,8 @@
 "use client";
+import React from 'react';
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // @ts-nocheck
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 
 interface Mission {
@@ -10,7 +11,7 @@ interface Mission {
   description: string;
   type: 'main' | 'side' | 'boss';
   difficulty: number;
-  rewards: { divineEssence: number; experience: number; items?: string[] };
+  rewards: { divineEssence: number; experience: number; items?: string[]; };
   objectives: string[];
   completed: boolean;
   location: string;
@@ -27,8 +28,8 @@ interface Enemy {
   attack: number;
   defense: number;
   level: number;
-  position: { x: number; y: number };
-  rewards: { divineEssence: number; experience: number };
+  position: { x: number; y: number; };
+  rewards: { divineEssence: number; experience: number; };
   abilities: string[];
 }
 
@@ -36,8 +37,8 @@ interface TreasureHunt {
   id: string;
   name: string;
   clue: string;
-  location: { x: number; y: number; area: string };
-  reward: { divineEssence: number; items: string[] };
+  location: { x: number; y: number; area: string; };
+  reward: { divineEssence: number; items: string[]; };
   timeLimit: number;
   discovered: boolean;
   completed: boolean;
@@ -47,11 +48,16 @@ interface RPGAchievement {
   id: string;
   name: string;
   description: string;
-  reward: { divineEssence: number; items?: string[] };
+  reward: { divineEssence: number; items?: string[]; };
   completed: boolean;
   progress?: number;
   maxProgress?: number;
   type: 'combat' | 'exploration' | 'treasure' | 'boss' | 'collection';
+  claimed: boolean; // Indicates whether the achievement reward has been claimed
+  icon: string; // Icon representing the achievement
+  category: 'souls' | 'combat' | 'equipment' | 'skills'; // Define specific categories for achievements
+  rarity: 'common' | 'rare' | 'epic' | 'legendary'; // Define specific rarity levels for achievements
+  divineEssenceReward: number; // Reward in divine essence for completing the achievement
 }
 
 interface Equipment {
@@ -86,7 +92,7 @@ interface RPGCharacter {
   speed: number;
   soulsRescued: number;
   currentQuest: string | null;
-  position: { x: number; y: number };
+  position: { x: number; y: number; };
   equipment: {
     weapon: RPGItem | null;
     armor: RPGItem | null;
@@ -140,7 +146,7 @@ interface RPGState {
   maxHealth: number;
   playerMana: number;
   maxMana: number;
-  playerPosition: { x: number; y: number };
+  playerPosition: { x: number; y: number; };
   currentMission: Mission | null;
   activeSideMissions: Mission[];
   completedMissions: string[];
@@ -246,15 +252,15 @@ interface AirdropAllocation {
 //   return Math.random() * 5; // Mock balance
 // };
 
-import { MiningInterface } from "@/components/mining-interface";
-import { GameStore } from "@/components/game-store";
 import { Achievements } from "@/components/achievements";
+import { GameHeader } from "@/components/game-header";
+import { GameStore } from "@/components/game-store";
 import { Leaderboard } from "@/components/leaderboard";
+import { MiningInterface } from "@/components/mining-interface";
+import RPGAdventure from "@/components/rpg-adventure";
 import { TelegramIntegration } from "@/components/telegram-integration";
 import { TelegramTasks } from "@/components/telegram-tasks";
-import RPGAdventure from "@/components/rpg-adventure";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { GameHeader } from "@/components/game-header";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 
 const TransactionMonitor = () => {
@@ -285,7 +291,7 @@ export default function GuardianAngelLisaGame() {
         reward: 10,
         condition: 'Tap the mine once',
         completed: false,
-      claimed: false, // Ensure claimed property is set
+        claimed: false, // Ensure claimed property is set
         icon: '👆',
       },
       {
@@ -705,14 +711,14 @@ export default function GuardianAngelLisaGame() {
     isMoving: false,
   });
   // Initialize Telegram WebApp
-    useEffect(() => {
-      if (typeof globalThis !== 'undefined' && globalThis.window && globalThis.window.Telegram && globalThis.window.Telegram.WebApp) {
-        const tg = globalThis.window.Telegram.WebApp;
-        tg.ready();
-        tg.expand();
-        tg.setHeaderColor('#8b5cf6');
-        tg.setBackgroundColor('#0f0f23');
-      }
+  useEffect(() => {
+    if (typeof globalThis !== 'undefined' && globalThis.window && globalThis.window.Telegram && globalThis.window.Telegram.WebApp) {
+      const tg = globalThis.window.Telegram.WebApp;
+      tg.ready();
+      tg.expand();
+      tg.setHeaderColor('#8b5cf6');
+      tg.setBackgroundColor('#0f0f23');
+    }
   }, []);
 
   // Check daily check-in availability
@@ -724,8 +730,8 @@ export default function GuardianAngelLisaGame() {
     };
 
     checkDailyCheckIn();
-  const interval = globalThis.setInterval(checkDailyCheckIn, 60000);
-    return () => clearInterval(interval);
+    const interval = globalThis.setInterval(checkDailyCheckIn, 60000);
+    return () => globalThis.clearInterval(interval);
   }, [gameState.lastCheckIn]);
 
   const addPoints = (points: number, activity: string) => {
@@ -750,7 +756,7 @@ export default function GuardianAngelLisaGame() {
       };
 
       // Calculate new allocation percentages
-  const response = await globalThis.fetch('/api/airdrop/calculate', {
+      const response = await globalThis.fetch('/api/airdrop/calculate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ playerData: currentPlayer }),
@@ -761,14 +767,14 @@ export default function GuardianAngelLisaGame() {
         setAirdropData(updatedAllocation);
       }
     } catch (error) {
-  globalThis.console.error('Failed to update airdrop allocation:', error);
+      globalThis.console.error('Failed to update airdrop allocation:', error);
     }
   };
 
   const handleDailyCheckIn = async () => {
     if (!walletConnected || !dailyCheckIn.canCheckIn) return;
 
-  setDailyCheckIn((prev) => ({ ...prev, isProcessing: true }));
+    setDailyCheckIn((prev: typeof dailyCheckIn) => ({ ...prev, isProcessing: true }));
 
     try {
       // Simulate TON payment of 0.5 TON
@@ -785,12 +791,14 @@ export default function GuardianAngelLisaGame() {
 
       // Update check-in status
       const today = new Date().toDateString();
-      setDailyCheckIn((prev: { lastCheckIn: string; streak: number }) => ({
+      setDailyCheckIn((prev) => ({
         ...prev,
         lastCheckIn: today,
         canCheckIn: false,
         streak:
-          prev.lastCheckIn === new Date(Date.now() - 86400000).toDateString() ? prev.streak + 1 : 1,
+          prev.lastCheckIn === new Date(Date.now() - 86400000).toDateString()
+            ? prev.streak + 1
+            : 1,
         isProcessing: false,
       }));
 
@@ -799,8 +807,8 @@ export default function GuardianAngelLisaGame() {
 
       // floatingTexts("+1000 LISA", 400, 300, "#10b981") // Commented out undefined function
     } catch (error) {
-  globalThis.console.error('Daily check-in failed:', error);
-      setDailyCheckIn((prev: any) => ({ ...prev, isProcessing: false }));
+      globalThis.console.error('Daily check-in failed:', error);
+      setDailyCheckIn((prev) => ({ ...prev, isProcessing: false }));
     }
   };
 
@@ -808,7 +816,7 @@ export default function GuardianAngelLisaGame() {
     setAirdropPoints((prev: number) => prev + points);
 
     // Update allocation percentage (simplified calculation)
-  globalThis.fetch('/api/airdrop/calculate', {
+    globalThis.fetch('/api/airdrop/calculate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -816,14 +824,14 @@ export default function GuardianAngelLisaGame() {
         points: points,
         action: action,
       }),
-  }).catch(globalThis.console.error);
+    }).catch(globalThis.console.error);
   };
 
   const handleTap = () => {
     if (gameState.energy <= 0) return;
 
     setTapAnimation(true);
-  globalThis.setTimeout(() => setTapAnimation(false), 150);
+    globalThis.setTimeout(() => setTapAnimation(false), 150);
 
     const reward = gameState.miningPower;
     setGameState((prev) => ({
@@ -847,7 +855,7 @@ export default function GuardianAngelLisaGame() {
     if (gameState.energy <= 0) return;
 
     setTapAnimation(true);
-  globalThis.setTimeout(() => setTapAnimation(false), 150);
+    globalThis.setTimeout(() => setTapAnimation(false), 150);
 
     // Calculate rewards with multipliers
     const baseReward = gameState.miningPower;
@@ -884,7 +892,7 @@ export default function GuardianAngelLisaGame() {
   };
 
   const purchaseUpgrade = (upgradeId: string) => {
-    const upgrade = gameState.upgrades.find((u: { id: string }) => u.id === upgradeId);
+    const upgrade = gameState.upgrades.find((u: { id: string; }) => u.id === upgradeId);
     if (!upgrade || upgrade.level >= upgrade.maxLevel || gameState.coins < upgrade.cost) {
       return;
     }
