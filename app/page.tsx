@@ -261,6 +261,7 @@ import RPGAdventure from "@/components/rpg-adventure";
 import { TelegramIntegration } from "@/components/telegram-integration";
 import { TelegramTasks } from "@/components/telegram-tasks";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TonConnectUI } from '@tonconnect/ui-react';
 
 
 const TransactionMonitor = () => {
@@ -351,7 +352,7 @@ export default function GuardianAngelLisaGame() {
   });
 
   const [wallet, setWallet] = useState(null);
-  const [tonConnectUI, setTonConnectUI] = useState(null);
+  const [tonConnectUI, setTonConnectUI] = useState<TonConnectUI | null>(null);
   const [newAchievements, setNewAchievements] = useState([]);
   const [walletConnected, setWalletConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState('');
@@ -915,7 +916,7 @@ export default function GuardianAngelLisaGame() {
   }
   return (
     <div>
-      <GameHeader gameStats={gameState} wallet={wallet} tonConnectUI={tonConnectUI} />
+      {tonConnectUI && wallet && <GameHeader gameStats={gameState} wallet={wallet} tonConnectUI={tonConnectUI} />}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="mb-4 flex flex-wrap gap-2 justify-center">
           <TabsTrigger value="mining">Mining</TabsTrigger>

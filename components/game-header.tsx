@@ -1,9 +1,10 @@
-'use client';
+"use client";
 
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { TonConnectButton } from '@tonconnect/ui-react';
+import React from "react";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { TonConnectButton, TonConnectUI } from "@tonconnect/ui-react";
 
 interface GameHeaderProps {
   gameStats: {
@@ -13,11 +14,10 @@ interface GameHeaderProps {
     level: number;
     experience: number;
   };
-  wallet: any;
-  tonConnectUI: any;
+  tonConnectUI: TonConnectUI; // Replace with the correct type from @tonconnect/ui-react
+  wallet: { address: string; balance: number }; // Replace with the correct wallet type
 }
-
-export function GameHeader({ gameStats, wallet, tonConnectUI }: GameHeaderProps) {
+export function GameHeader({ gameStats }: GameHeaderProps) {
   return (
     <header className="sticky top-0 z-50 bg-card/95 backdrop-blur border-b border-border">
       <div className="container mx-auto px-4 py-3">
@@ -27,8 +27,12 @@ export function GameHeader({ gameStats, wallet, tonConnectUI }: GameHeaderProps)
               <span className="text-xl">👼</span>
             </div>
             <div>
-              <h1 className="text-lg font-bold text-primary">Guardian Angel LISA</h1>
-              <p className="text-xs text-muted-foreground">Level {gameStats.level}</p>
+              <h1 className="text-lg font-bold text-primary">
+                Guardian Angel LISA
+              </h1>
+              <p className="text-xs text-muted-foreground">
+                Level {gameStats.level}
+              </p>
             </div>
           </div>
 
@@ -48,15 +52,23 @@ export function GameHeader({ gameStats, wallet, tonConnectUI }: GameHeaderProps)
                 {gameStats.energy}/{gameStats.maxEnergy}
               </span>
             </div>
-            <Progress value={(gameStats.energy / gameStats.maxEnergy) * 100} className="h-2" />
+            <Progress
+              value={(gameStats.energy / gameStats.maxEnergy) * 100}
+              className="h-2"
+            />
           </Card>
 
           <Card className="p-3">
             <div className="flex items-center justify-between mb-1">
               <span className="text-sm text-muted-foreground">Experience</span>
-              <span className="text-sm font-medium">{gameStats.experience}/1000</span>
+              <span className="text-sm font-medium">
+                {gameStats.experience}/1000
+              </span>
             </div>
-            <Progress value={(gameStats.experience / 1000) * 100} className="h-2" />
+            <Progress
+              value={(gameStats.experience / 1000) * 100}
+              className="h-2"
+            />
           </Card>
         </div>
       </div>
