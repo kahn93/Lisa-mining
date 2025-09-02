@@ -1,4 +1,5 @@
 /* eslint-env browser */
+/* global window document */
 'use client';
 
 import * as React from 'react';
@@ -84,7 +85,7 @@ function SidebarProvider({
       }
 
       // This sets the cookie to keep the sidebar state.
-      if (typeof document !== 'undefined') {
+      if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
       }
     },
@@ -98,6 +99,9 @@ function SidebarProvider({
 
   // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === SIDEBAR_KEYBOARD_SHORTCUT && (event.metaKey || event.ctrlKey)) {
         event.preventDefault();
@@ -105,11 +109,12 @@ function SidebarProvider({
       }
     };
 
-    if (typeof window !== 'undefined') {
-      window.addEventListener('keydown', handleKeyDown);
-      return () => window.removeEventListener('keydown', handleKeyDown);
-    }
-    return undefined;
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('keydown', handleKeyDown);
+      }
+    };
   }, [toggleSidebar]);
 
   // We add a state so that we can do data-state="expanded" or "collapsed".

@@ -1,4 +1,22 @@
-'use client';
+"use client";
+// SSR-safe localStorage helpers
+/* global localStorage */
+// SSR-safe localStorage helpers
+function safeGetItem(key: string, fallback: string = '0') {
+  if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+    const value = localStorage.getItem(key);
+    return value !== null ? value : fallback;
+  }
+  return fallback;
+}
+
+function safeSetItem(key: string, value: string) {
+  if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+    localStorage.setItem(key, value);
+  }
+}
+import * as React from 'react';
+
 
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
@@ -31,8 +49,19 @@ interface Achievement {
   hidden?: boolean;
 }
 
+interface GameStats {
+  coins: number;
+  // Add other relevant fields as needed, for example:
+  // questsCompleted?: number;
+  // enemiesDefeated?: number;
+  // premiumPurchases?: number;
+  // daysPlayed?: number;
+  // maxCombo?: number;
+  // totalSpent?: number;
+}
+
 interface AchievementsProps {
-  gameStats: any;
+  gameStats: GameStats;
 }
 
 export function Achievements({ gameStats }: AchievementsProps) {
@@ -45,20 +74,12 @@ export function Achievements({ gameStats }: AchievementsProps) {
   // Hydration-safe helpers
   const safeNow = () => (typeof window !== 'undefined' ? Date.now() : 0);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
-  const [playerStats, setPlayerStats] = useState({
-    totalMined: 0,
-    questsCompleted: 0,
-    enemiesDefeated: 0,
-    premiumPurchases: 0,
-    daysPlayed: 1,
-    maxCombo: 0,
-    totalSpent: 0,
-  });
+  // Removed unused playerStats state
   const [activeCategory, setActiveCategory] = useState('all');
   const [showCompleted, setShowCompleted] = useState(false);
   const { toast } = useToast();
 
-  const achievementsList: Achievement[] = [
+  const achievementsList: Achievement[] = React.useMemo(() => [
     // Mining Achievements
     {
       id: 'first_mine',
@@ -227,79 +248,76 @@ export function Achievements({ gameStats }: AchievementsProps) {
       rewards: { coins: 20000, experience: 5000, title: 'Dedicated Guardian' },
       completed: false,
     },
-  ];
+  ], []);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // Initialize achievements with current progress
-      const updatedAchievements = achievementsList.map((achievement) => {
-        let current = 0;
-        switch (achievement.requirements.type) {
-          case 'total_mined':
-            current = gameStats.coins;
-            break;
-          case 'mine_count':
-            current = Number.parseInt(localStorage.getItem('mine_count') || '0');
-            break;
-          case 'max_combo':
-            current = Number.parseInt(localStorage.getItem('max_combo') || '0');
-            break;
-          case 'quests_completed':
-            current = Number.parseInt(localStorage.getItem('quests_completed') || '0');
-            break;
-          case 'enemies_defeated':
-            current = Number.parseInt(localStorage.getItem('enemies_defeated') || '0');
-            break;
-          case 'premium_purchases':
-            current = Number.parseInt(localStorage.getItem('premium_purchases') || '0');
-            break;
-          case 'total_spent':
-            current = Number.parseFloat(localStorage.getItem('total_spent') || '0');
-            break;
-          case 'days_played':
-            current = Number.parseInt(localStorage.getItem('days_played') || '1');
-            break;
-          default:
-            current = 0;
-        }
-
-        const completed = current >= achievement.requirements.target;
-        const wasCompleted = localStorage.getItem(`achievement_${achievement.id}`) === 'true';
-
-        // Check if achievement was just completed
-        if (completed && !wasCompleted) {
-          completeAchievement(achievement);
-        }
-
-        let completedDate: Date | undefined = undefined;
-        if (wasCompleted) {
-          const dateStr = localStorage.getItem(`achievement_${achievement.id}_date`);
-          completedDate = dateStr ? new Date(dateStr) : new Date(safeNow());
-        }
-
-        return {
-          ...achievement,
-          requirements: { ...achievement.requirements, current },
-          completed: completed || wasCompleted,
-          completedDate,
-        };
-      });
-      setAchievements(updatedAchievements);
-    }
-  }, [gameStats]);
-
-  const completeAchievement = (achievement: Achievement) => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(`achievement_${achievement.id}`, 'true');
-      localStorage.setItem(`achievement_${achievement.id}_date`, new Date().toISOString());
-    }
+  const completeAchievement = React.useCallback((achievement: Achievement) => {
+    safeSetItem(`achievement_${achievement.id}`, 'true');
+    safeSetItem(`achievement_${achievement.id}_date`, new Date().toISOString());
     toast({
       title: 'Achievement Unlocked!',
       description: `${achievement.title} - ${achievement.description}`,
     });
     // Award rewards (this would integrate with your game state)
     // For now, we'll just show the notification
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    // Initialize achievements with current progress
+    const updatedAchievements = achievementsList.map((achievement) => {
+      let current = 0;
+      switch (achievement.requirements.type) {
+        case 'total_mined':
+          current = gameStats.coins;
+          break;
+        case 'mine_count':
+          current = Number.parseInt(safeGetItem('mine_count'));
+          break;
+        case 'max_combo':
+          current = Number.parseInt(safeGetItem('max_combo'));
+          break;
+        case 'quests_completed':
+          current = Number.parseInt(safeGetItem('quests_completed'));
+          break;
+        case 'enemies_defeated':
+          current = Number.parseInt(safeGetItem('enemies_defeated'));
+          break;
+        case 'premium_purchases':
+          current = Number.parseInt(safeGetItem('premium_purchases'));
+          break;
+        case 'total_spent':
+          current = Number.parseFloat(safeGetItem('total_spent'));
+          break;
+        case 'days_played':
+          current = Number.parseInt(safeGetItem('days_played', '1'));
+          break;
+        default:
+          current = 0;
+      }
+
+      let wasCompleted = false;
+      let completedDate: Date | undefined = undefined;
+      wasCompleted = safeGetItem(`achievement_${achievement.id}`) === 'true';
+      if (wasCompleted) {
+        const dateStr = safeGetItem(`achievement_${achievement.id}_date`, '');
+        completedDate = dateStr ? new Date(dateStr) : new Date(safeNow());
+      }
+
+      const completed = current >= achievement.requirements.target;
+
+      // Check if achievement was just completed
+      if (completed && !wasCompleted) {
+        completeAchievement(achievement);
+      }
+
+      return {
+        ...achievement,
+        requirements: { ...achievement.requirements, current },
+        completed: completed || wasCompleted,
+        completedDate,
+      };
+    });
+    setAchievements(updatedAchievements);
+  }, [gameStats, achievementsList, completeAchievement]);
 
   const getRarityColor = (rarity: Achievement['rarity']) => {
     switch (rarity) {
@@ -450,7 +468,7 @@ export function Achievements({ gameStats }: AchievementsProps) {
                       <span>💰 {achievement.rewards.coins} coins</span>
                       <span>⭐ {achievement.rewards.experience} XP</span>
                       {achievement.rewards.title && (
-                        <span>🏷️ "{achievement.rewards.title}" title</span>
+                        <span>🏷️ &quot;{achievement.rewards.title}&quot; title</span>
                       )}
                     </div>
                     {achievement.completed && hydrated && achievement.completedDate && (
@@ -486,7 +504,7 @@ export function Achievements({ gameStats }: AchievementsProps) {
             <div className="text-xl font-bold text-primary">
               {
                 achievements.filter(
-                  (a: { completed: any; rarity: string }) =>
+                  (a: Achievement) =>
                     a.completed && a.rarity === 'legendary',
                 ).length
               }
@@ -497,7 +515,7 @@ export function Achievements({ gameStats }: AchievementsProps) {
             <div className="text-xl font-bold text-primary">
               {
                 achievements.filter(
-                  (a: { completed: any; rarity: string }) => a.completed && a.rarity === 'epic',
+                  (a: Achievement) => a.completed && a.rarity === 'epic',
                 ).length
               }
             </div>
@@ -507,7 +525,7 @@ export function Achievements({ gameStats }: AchievementsProps) {
             <div className="text-xl font-bold text-primary">
               {
                 achievements.filter(
-                  (a: { completed: any; rarity: string }) => a.completed && a.rarity === 'rare',
+                  (a: Achievement) => a.completed && a.rarity === 'rare',
                 ).length
               }
             </div>
@@ -517,7 +535,7 @@ export function Achievements({ gameStats }: AchievementsProps) {
             <div className="text-xl font-bold text-primary">
               {
                 achievements.filter(
-                  (a: { completed: any; rarity: string }) => a.completed && a.rarity === 'common',
+                  (a: Achievement) => a.completed && a.rarity === 'common',
                 ).length
               }
             </div>

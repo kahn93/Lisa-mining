@@ -1,4 +1,5 @@
-'use client';
+
+import React from 'react';
 
 import { useState, useEffect } from 'react';
 import { useTonWallet } from '@tonconnect/ui-react';
@@ -27,7 +28,7 @@ export function TransactionMonitor() {
       // 2. Monitor transaction confirmations
       // 3. Update transaction statuses
 
-      const interval = setInterval(() => {
+  const interval = globalThis.setInterval(() => {
         // Simulate transaction monitoring
         setTransactions((prev) =>
           prev.map((tx) =>
@@ -38,20 +39,10 @@ export function TransactionMonitor() {
         );
       }, 5000);
 
-      return () => clearInterval(interval);
+  return () => globalThis.clearInterval(interval);
     }
   }, [wallet, isMonitoring]);
 
-  const addTransaction = (hash: string, amount: string, item?: string) => {
-    const newTransaction: Transaction = {
-      hash,
-      amount,
-      timestamp: new Date(),
-      status: 'pending',
-      item,
-    };
-    setTransactions((prev) => [newTransaction, ...prev]);
-  };
 
   const getStatusColor = (status: Transaction['status']) => {
     switch (status) {

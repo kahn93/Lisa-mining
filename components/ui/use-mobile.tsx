@@ -1,3 +1,4 @@
+/* global window */
 import * as React from 'react';
 
 const MOBILE_BREAKPOINT = 768;
@@ -19,7 +20,11 @@ export function useIsMobile() {
     if (typeof window !== 'undefined') {
       setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
     }
-    return () => mql.removeEventListener('change', onChange);
+    return () => {
+      if (typeof window !== 'undefined') {
+        mql.removeEventListener('change', onChange);
+      }
+    };
   }, []);
 
   return hydrated ? !!isMobile : false;

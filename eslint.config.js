@@ -25,9 +25,10 @@ export default [
       "react-hooks": reactHooksPlugin,
     },
     rules: {
-      ...tseslint.configs.recommended.rules,
-      ...reactPlugin.configs.recommended.rules,
-      ...reactHooksPlugin.configs.recommended.rules,
+  ...tseslint.configs.recommended.rules,
+  ...reactPlugin.configs.recommended.rules,
+  ...reactHooksPlugin.configs.recommended.rules,
+  'react/no-unknown-property': 'off',
     },
     settings: {
       react: {

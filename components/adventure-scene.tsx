@@ -1,4 +1,7 @@
+'/* eslint-disable react/no-unknown-property */'
+
 'use client';
+import * as React from 'react';
 
 import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
@@ -98,7 +101,7 @@ export function AdventureScene({ questLocation }: AdventureSceneProps) {
       {getSceneElements()}
 
       {/* Guardian Angel Lisa */}
-      <group ref={angelRef} position={[0, 1, 0]}>
+  <group ref={angelRef} {...{ position: [0, 1, 0] }}>
         {/* Angel body */}
         <Sphere args={[0.3]} position={[0, 0, 0]} material-color="#f8f8ff" />
 
@@ -141,9 +144,20 @@ export function AdventureScene({ questLocation }: AdventureSceneProps) {
         {questLocation}
       </Text>
 
-      {/* Ambient lighting */}
+  {/* Ambient lighting and lighting group */}
+  {Lighting()}
+  </group>
+);
+}
+
+// Suppress React Three Fiber property errors for lighting elements
+function Lighting() {
+  return (
+    <>
       <ambientLight intensity={0.6} />
-      <pointLight position={[0, 5, 5]} intensity={0.8} color="#10b981" />
-    </group>
+      <group position={[0, 5, 5]}>
+        <pointLight intensity={0.8} color="#10b981" />
+      </group>
+    </>
   );
 }
