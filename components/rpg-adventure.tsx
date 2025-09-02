@@ -1,26 +1,25 @@
 'use client';
 
-import React from 'react';
-import { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import {
-  Sword,
-  Shield,
-  Heart,
-  Zap,
-  Star,
-  Target,
-  ArrowUp,
   ArrowDown,
   ArrowLeft,
   ArrowRight,
-  Sparkles,
+  ArrowUp,
   Crown,
   Flame,
+  Heart,
+  Shield,
+  Sparkles,
+  Star,
+  Sword,
+  Target,
+  Zap,
 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 interface Character {
   name: string;
@@ -34,7 +33,7 @@ interface Character {
   speed: number;
   experience: number;
   experienceToNext: number;
-  position: { x: number; y: number };
+  position: { x: number; y: number; };
   direction: 'up' | 'down' | 'left' | 'right';
   weapon: string;
   skills: string[];
@@ -49,8 +48,8 @@ interface Enemy {
   maxHp: number;
   attack: number;
   defense: number;
-  position: { x: number; y: number };
-  reward: { coins: number; experience: number };
+  position: { x: number; y: number; };
+  reward: { coins: number; experience: number; };
   isAlive: boolean;
 }
 
@@ -63,7 +62,7 @@ interface Quest {
   progress: number;
   maxProgress: number;
   completed: boolean;
-  reward: { coins: number; experience: number; item?: string };
+  reward: { coins: number; experience: number; item?: string; };
 }
 
 interface GameMap {
@@ -71,13 +70,23 @@ interface GameMap {
   height: number;
   tiles: ('grass' | 'stone' | 'water' | 'portal' | 'enemy' | 'soul')[][];
   enemies: Enemy[];
-  souls: { x: number; y: number; rescued: boolean }[];
+  souls: { x: number; y: number; rescued: boolean; }[];
 }
 
-export default function RPGAdventure() {
+interface RPGAdventureProps {
+  gameStats: {
+    coins: number;
+    experience: number;
+    level: number;
+  };
+  onReward: (coins: number, experience: number) => void;
+  onLevelUp?: (newLevel: number) => void;
+}
+
+export default function RPGAdventure({ gameStats, onReward, onLevelUp }: RPGAdventureProps) {
   const [character, setCharacter] = useState<Character>({
     name: 'Guardian Angel Lisa',
-    level: 1,
+    level: gameStats.level,
     hp: 100,
     maxHp: 100,
     mp: 50,
@@ -85,8 +94,8 @@ export default function RPGAdventure() {
     attack: 15,
     defense: 10,
     speed: 12,
-    experience: 0,
-    experienceToNext: 100,
+    experience: gameStats.experience,
+    experienceToNext: 1000 - (gameStats.experience % 1000),
     position: { x: 5, y: 5 },
     direction: 'down',
     weapon: 'Divine Sword',
@@ -382,7 +391,7 @@ export default function RPGAdventure() {
     }));
   };
 
-  const rescueSoul = (soul: { x: number; y: number; rescued: boolean }) => {
+  const rescueSoul = (soul: { x: number; y: number; rescued: boolean; }) => {
     setGameMap((prev) => ({
       ...prev,
       souls: prev.souls.map((s) =>
@@ -522,10 +531,8 @@ export default function RPGAdventure() {
       enemies: prev.enemies.map((e) => (e.id === enemy.id ? { ...e, isAlive: false } : e)),
     }));
 
-    setCharacter((prev) => ({
-      ...prev,
-      experience: prev.experience + enemy.reward.experience,
-    }));
+    // Update main game state with rewards
+    onReward(enemy.reward.coins, enemy.reward.experience);
 
     setActiveQuests((prev) =>
       prev.map((quest) => {
@@ -548,7 +555,7 @@ export default function RPGAdventure() {
       battleLog: [],
     });
 
-    setGameMessage(`⚔️ ${enemy.name} defeated! Gained ${enemy.reward.experience} XP!`);
+    setGameMessage(`⚔️ ${enemy.name} defeated! Gained ${enemy.reward.experience} XP and ${enemy.reward.coins} coins!`);
     setTimeout(() => setGameMessage(''), 3000);
   };
 
@@ -561,7 +568,7 @@ export default function RPGAdventure() {
             <Crown className="h-5 w-5" />
             {character.name}
             <Badge variant="secondary" className="bg-pink-200 text-pink-800">
-              Lv.{character.level}
+              Lv.{gameStats.level}
             </Badge>
           </CardTitle>
         </CardHeader>
@@ -595,11 +602,11 @@ export default function RPGAdventure() {
           <div className="flex items-center gap-1">
             <Star className="h-4 w-4 text-yellow-500" />
             <Progress
-              value={(character.experience / character.experienceToNext) * 100}
+              value={(gameStats.experience / (gameStats.level * 1000)) * 100}
               className="flex-1 h-2 bg-yellow-100"
             />
             <span className="text-xs text-muted-foreground">
-              {character.experience}/{character.experienceToNext} XP
+              {gameStats.experience % 1000}/{1000} XP
             </span>
           </div>
         </CardContent>

@@ -7,7 +7,6 @@ import { setTimeout } from 'timers';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { useCallback, useEffect, useState } from 'react';
 
 interface GameStats {
@@ -35,6 +34,15 @@ interface GameStats {
 interface MiningInterfaceProps {
   gameStats: GameStats;
   setGameStatsAction: (stats: GameStats | ((prev: GameStats) => GameStats)) => void;
+  onDailyCheckIn?: () => Promise<void>;
+  canCheckIn?: boolean;
+  dailyCheckIn?: {
+    lastCheckIn: string;
+    canCheckIn: boolean;
+    streak: number;
+    isProcessing: boolean;
+  };
+  walletConnected?: boolean;
 }
 
 interface FloatingReward {
@@ -55,7 +63,14 @@ interface Particle {
   maxLife: number;
 }
 
-export function MiningInterface({ gameStats, setGameStatsAction }: MiningInterfaceProps) {
+export function MiningInterface({
+  gameStats,
+  setGameStatsAction,
+  onDailyCheckIn,
+  canCheckIn = false,
+  dailyCheckIn,
+  walletConnected = false
+}: MiningInterfaceProps) {
   const [tapAnimation, setTapAnimation] = useState(false);
   const [floatingRewards, setFloatingRewards] = useState<FloatingReward[]>([]);
   const [particles, setParticles] = useState<Particle[]>([]);
@@ -90,31 +105,12 @@ export function MiningInterface({ gameStats, setGameStatsAction }: MiningInterfa
     if (gameStats.autoMining) {
       const interval = globalThis.setInterval(() => {
         // Refine setGameStatsAction logic to ensure type compatibility
-        setGameStatsAction((prev: GameStats) => {
-          const updatedStats: GameStats = {
-            ...prev,
-            coins: prev.coins + prev.miningPower,
-            energy: prev.energy, // Ensure all required fields are included
-            maxEnergy: prev.maxEnergy,
-            level: prev.level,
-            experience: prev.experience,
-            experienceToNext: prev.experienceToNext,
-            miningPower: prev.miningPower,
-            autoMining: prev.autoMining,
-            achievements: prev.achievements,
-            upgrades: prev.upgrades,
-            totalTaps: prev.totalTaps,
-            totalCoinsEarned: prev.totalCoinsEarned,
-            maxCombo: prev.maxCombo,
-            daysPlayed: prev.daysPlayed,
-            prestigeLevel: prev.prestigeLevel,
-            prestigePoints: prev.prestigePoints,
-            lastCheckIn: prev.lastCheckIn,
-            checkInStreak: prev.checkInStreak,
-            totalPoints: prev.totalPoints,
-          };
-          return updatedStats;
-        });
+        setGameStatsAction((prev: GameStats) => ({
+          ...prev,
+          coins: prev.coins + prev.miningPower,
+          experience: prev.experience + 1,
+          totalCoinsEarned: prev.totalCoinsEarned + prev.miningPower,
+        }));
       }, 1000);
       return () => globalThis.clearInterval(interval);
     }
@@ -239,6 +235,7 @@ export function MiningInterface({ gameStats, setGameStatsAction }: MiningInterfa
       const newExperience =
         prev.experience + (rewardType === 'bonus' ? 5 : rewardType === 'critical' ? 3 : 1);
       const newLevel = Math.floor(newExperience / 1000) + 1;
+      const newExperienceToNext = 1000 - (newExperience % 1000);
 
       return {
         ...prev,
@@ -246,6 +243,7 @@ export function MiningInterface({ gameStats, setGameStatsAction }: MiningInterfa
         energy: Math.max(0, prev.energy - 1),
         experience: newExperience,
         level: newLevel,
+        experienceToNext: newExperienceToNext,
       };
     });
 
@@ -472,33 +470,37 @@ export function MiningInterface({ gameStats, setGameStatsAction }: MiningInterfa
       </Card>
 
       <Card className="p-4">
-        <h3 className="font-semibold mb-3">Daily Tasks</h3>
+        <h3 className="font-semibold mb-3">Daily Check-In</h3>
         <div className="space-y-3">
-          <div className="p-3 bg-muted/20 rounded-lg">
+          <div className="p-3 bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-200 rounded-lg">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">Mine 100 times</span>
-              <Badge variant="outline">0/100</Badge>
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">📅</span>
+                <span className="text-sm font-medium">Daily Reward</span>
+              </div>
+              <Badge variant={canCheckIn ? "default" : "secondary"}>
+                {canCheckIn ? "Available" : "Claimed"}
+              </Badge>
             </div>
-            <Progress value={0} className="h-2 mb-2" />
-            <div className="text-xs text-muted-foreground">Reward: 500 coins + 50 XP</div>
-          </div>
-
-          <div className="p-3 bg-muted/20 rounded-lg">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">Reach 10x combo</span>
-              <Badge variant="outline">0/1</Badge>
+            <div className="text-xs text-muted-foreground mb-2">
+              Check in daily to earn rewards and maintain your streak!
             </div>
-            <Progress value={0} className="h-2 mb-2" />
-            <div className="text-xs text-muted-foreground">Reward: 1000 coins + 100 XP</div>
-          </div>
-
-          <div className="p-3 bg-muted/20 rounded-lg">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">Complete 1 Adventure</span>
-              <Badge variant="outline">0/1</Badge>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm">Current Streak: {dailyCheckIn?.streak || 0} days</span>
+              <span className="text-sm font-medium">+1000 LISA + 100 Points</span>
             </div>
-            <Progress value={0} className="h-2 mb-2" />
-            <div className="text-xs text-muted-foreground">Reward: 2000 coins + 200 XP</div>
+            <Button
+              onClick={onDailyCheckIn}
+              disabled={!canCheckIn || !walletConnected || dailyCheckIn?.isProcessing}
+              className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white"
+            >
+              {dailyCheckIn?.isProcessing ? "Processing..." : canCheckIn ? "Check In" : "Already Checked In"}
+            </Button>
+            {!walletConnected && (
+              <div className="text-xs text-red-500 mt-2 text-center">
+                Connect your wallet to check in
+              </div>
+            )}
           </div>
         </div>
       </Card>

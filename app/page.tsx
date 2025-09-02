@@ -1,7 +1,6 @@
 "use client";
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // @ts-nocheck
-import React from 'react';
 import { useEffect, useState } from 'react';
 
 
@@ -257,6 +256,7 @@ import { GameHeader } from "@/components/game-header";
 import { GameStore } from "@/components/game-store";
 import { Leaderboard } from "@/components/leaderboard";
 import { MiningInterface } from "@/components/mining-interface";
+import { Missions } from "@/components/missions";
 import RPGAdventure from "@/components/rpg-adventure";
 import { TelegramIntegration } from "@/components/telegram-integration";
 import { TelegramTasks } from "@/components/telegram-tasks";
@@ -735,6 +735,11 @@ export default function GuardianAngelLisaGame() {
     return () => globalThis.clearInterval(interval);
   }, [gameStats.lastCheckIn]);
 
+  // Check achievements when game stats change
+  useEffect(() => {
+    checkAchievements();
+  }, [gameStats.level, gameStats.totalCoinsEarned, gameStats.totalTaps]);
+
   const addPoints = (points: number, activity: string) => {
     setGameStats((prev) => ({
       ...prev,
@@ -750,7 +755,7 @@ export default function GuardianAngelLisaGame() {
       // Get current player data (in real app, this would be from Telegram user)
       const currentPlayer = {
         username: 'player_' + Math.random().toString(36).substr(2, 9), // Mock username
-        walletAddress: walletAddress || '',
+        walletAddress: walletAddress || 'mock_wallet_' + Math.random().toString(36).substr(2, 9),
         totalPoints: gameStats.totalPoints + newPoints,
         allocationPercentage: 0,
         lastUpdated: Date.now(),
@@ -766,6 +771,8 @@ export default function GuardianAngelLisaGame() {
       if (response.ok) {
         const updatedAllocation = await response.json();
         setAirdropData(updatedAllocation);
+      } else {
+        globalThis.console.error('Failed to update airdrop allocation:', response.statusText);
       }
     } catch (error) {
       globalThis.console.error('Failed to update airdrop allocation:', error);
@@ -788,6 +795,10 @@ export default function GuardianAngelLisaGame() {
       setGameStats((prev) => ({
         ...prev,
         coins: prev.coins + 1000,
+        lastCheckIn: new Date().toDateString(),
+        checkInStreak: prev.lastCheckIn === new Date(Date.now() - 86400000).toDateString()
+          ? prev.checkInStreak + 1
+          : 1,
       }));
 
       // Update check-in status
@@ -796,10 +807,9 @@ export default function GuardianAngelLisaGame() {
         ...prev,
         lastCheckIn: today,
         canCheckIn: false,
-        streak:
-          prev.lastCheckIn === new Date(Date.now() - 86400000).toDateString()
-            ? prev.streak + 1
-            : 1,
+        streak: prev.lastCheckIn === new Date(Date.now() - 86400000).toDateString()
+          ? prev.streak + 1
+          : 1,
         isProcessing: false,
       }));
 
@@ -816,16 +826,14 @@ export default function GuardianAngelLisaGame() {
   const updateAirdropPoints = (points: number, action: string) => {
     setAirdropPoints((prev: number) => prev + points);
 
-    // Update allocation percentage (simplified calculation)
-    globalThis.fetch('/api/airdrop/calculate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        playerAddress: walletAddress,
-        points: points,
-        action: action,
-      }),
-    }).catch(globalThis.console.error);
+    // Update game stats total points
+    setGameStats((prev) => ({
+      ...prev,
+      totalPoints: prev.totalPoints + points,
+    }));
+
+    // Update allocation via API
+    updateAirdropAllocation(points);
   };
 
   const handleTap = () => {
@@ -845,11 +853,8 @@ export default function GuardianAngelLisaGame() {
       totalPoints: prev.totalPoints + 1,
     }));
 
-    // setComboCount((prev: number) => prev + 1)
-    // setTimeout(() => setComboCount(0), 2000)
-
-    // Check achievements
-    // newAchievements() // Commented out undefined function
+    // Check achievements after tap
+    checkAchievements();
   };
 
   const handleMining = () => {
@@ -884,12 +889,54 @@ export default function GuardianAngelLisaGame() {
     // Add airdrop points for mining
     updateAirdropPoints(1, 'mining');
 
-    // Visual effects (commented out undefined functions)
-    // floatingTexts(`+${finalReward}`, 400, 300, "#10b981")
-    // setParticles(400, 300, 5)
+    // Check achievements after mining
+    checkAchievements();
+  };
 
-    // Check for achievements
-    // newAchievements() // Commented out undefined function
+  // Achievement checking logic
+  const checkAchievements = () => {
+    setGameStats((prev) => {
+      const updatedAchievements = prev.achievements.map((achievement) => {
+        if (achievement.completed) return achievement;
+
+        let shouldComplete = false;
+
+        switch (achievement.id) {
+          case 'first_tap':
+            shouldComplete = prev.totalTaps >= 1;
+            break;
+          case 'reach_level_5':
+            shouldComplete = prev.level >= 5;
+            break;
+          case 'earn_1000_coins':
+            shouldComplete = prev.totalCoinsEarned >= 1000;
+            break;
+          default:
+            shouldComplete = false;
+        }
+
+        if (shouldComplete && !achievement.completed) {
+          // Award achievement reward
+          const newCoins = prev.coins + achievement.reward;
+          setGameStats((prevStats) => ({
+            ...prevStats,
+            coins: newCoins,
+          }));
+
+          // Show achievement notification (you can implement a toast here)
+          globalThis.console.log(`Achievement unlocked: ${achievement.name}! +${achievement.reward} coins`);
+
+          return { ...achievement, completed: true, claimed: true };
+        }
+
+        return achievement;
+      });
+
+      return {
+        ...prev,
+        achievements: updatedAchievements,
+      };
+    });
   };
 
   const purchaseUpgrade = (upgradeId: string) => {
@@ -920,6 +967,7 @@ export default function GuardianAngelLisaGame() {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="mb-4 flex flex-wrap gap-2 justify-center">
           <TabsTrigger value="mining">Mining</TabsTrigger>
+          <TabsTrigger value="missions">Missions</TabsTrigger>
           <TabsTrigger value="store">Store</TabsTrigger>
           <TabsTrigger value="achievements">Achievements</TabsTrigger>
           <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
@@ -928,34 +976,88 @@ export default function GuardianAngelLisaGame() {
           <TabsTrigger value="tasks">Tasks</TabsTrigger>
         </TabsList>
         <TabsContent value="mining">
-          <MiningInterface gameStats={gameStats} setGameStatsAction={(stats) => {
-            if (typeof stats === 'function') {
-              setGameStats((prev) => ({
-                ...prev,
-                ...stats,
-              }));
-            } else {
-              setGameStats((prev) => ({
-                ...prev,
-                ...stats,
-                experienceToNext: stats.experienceToNext ?? prev.experienceToNext,
-                achievements: stats.achievements ?? prev.achievements,
-                upgrades: stats.upgrades ?? prev.upgrades,
-                totalTaps: stats.totalTaps ?? prev.totalTaps,
-                totalCoinsEarned: stats.totalCoinsEarned ?? prev.totalCoinsEarned,
-                maxCombo: stats.maxCombo ?? prev.maxCombo,
-                daysPlayed: stats.daysPlayed ?? prev.daysPlayed,
-                prestigeLevel: stats.prestigeLevel ?? prev.prestigeLevel,
-                prestigePoints: stats.prestigePoints ?? prev.prestigePoints,
-                lastCheckIn: stats.lastCheckIn ?? prev.lastCheckIn,
-                checkInStreak: stats.checkInStreak ?? prev.checkInStreak,
-                totalPoints: stats.totalPoints ?? prev.totalPoints,
-              }));
-            }
-          }} />
+          <MiningInterface
+            gameStats={gameStats}
+            setGameStatsAction={(stats) => {
+              if (typeof stats === 'function') {
+                setGameStats((prev) => ({
+                  ...prev,
+                  ...stats,
+                }));
+              } else {
+                setGameStats((prev) => ({
+                  ...prev,
+                  ...stats,
+                  experienceToNext: stats.experienceToNext ?? prev.experienceToNext,
+                  achievements: stats.achievements ?? prev.achievements,
+                  upgrades: stats.upgrades ?? prev.upgrades,
+                  totalTaps: stats.totalTaps ?? prev.totalTaps,
+                  totalCoinsEarned: stats.totalCoinsEarned ?? prev.totalCoinsEarned,
+                  maxCombo: stats.maxCombo ?? prev.maxCombo,
+                  daysPlayed: stats.daysPlayed ?? prev.daysPlayed,
+                  prestigeLevel: stats.prestigeLevel ?? prev.prestigeLevel,
+                  prestigePoints: stats.prestigePoints ?? prev.prestigePoints,
+                  lastCheckIn: stats.lastCheckIn ?? prev.lastCheckIn,
+                  checkInStreak: stats.checkInStreak ?? prev.checkInStreak,
+                  totalPoints: stats.totalPoints ?? prev.totalPoints,
+                }));
+              }
+            }}
+            onDailyCheckIn={handleDailyCheckIn}
+            canCheckIn={canCheckIn}
+            dailyCheckIn={dailyCheckIn}
+            walletConnected={walletConnected}
+          />
+        </TabsContent>
+        <TabsContent value="missions">
+          <Missions
+            missions={baseMissions || []}
+            treasureHunts={treasureHuntBase ? [treasureHuntBase] : []}
+            onCompleteMission={(missionId) => {
+              const mission = baseMissions?.find(m => m.id === missionId);
+              if (mission && !mission.completed) {
+                setGameStats((prev) => ({
+                  ...prev,
+                  coins: prev.coins + mission.rewards.divineEssence,
+                  experience: prev.experience + mission.rewards.experience,
+                  level: Math.floor((prev.experience + mission.rewards.experience) / 1000) + 1,
+                  experienceToNext: 1000 - ((prev.experience + mission.rewards.experience) % 1000),
+                }));
+                // Mark mission as completed (in a real app, this would be persisted)
+                setBaseMissions(prev => prev?.map(m =>
+                  m.id === missionId ? { ...m, completed: true } : m
+                ) || null);
+              }
+            }}
+            onCompleteTreasureHunt={(treasureHuntId) => {
+              if (treasureHuntBase && treasureHuntBase.id === treasureHuntId && !treasureHuntBase.completed) {
+                setGameStats((prev) => ({
+                  ...prev,
+                  coins: prev.coins + treasureHuntBase.reward.divineEssence,
+                }));
+                // Mark treasure hunt as completed
+                setTreasureHuntBase(prev => prev ? { ...prev, completed: true } : null);
+              }
+            }}
+          />
         </TabsContent>
         <TabsContent value="store">
-          {wallet && <GameStore wallet={wallet} tonConnectUI={tonConnectUI} />}
+          {wallet && <GameStore
+            wallet={wallet}
+            tonConnectUI={tonConnectUI}
+            gameStats={{
+              coins: gameStats.coins,
+              energy: gameStats.energy,
+              maxEnergy: gameStats.maxEnergy,
+              miningPower: gameStats.miningPower,
+            }}
+            onGameStatsUpdate={(updates) => {
+              setGameStats((prev) => ({
+                ...prev,
+                ...updates,
+              }));
+            }}
+          />}
         </TabsContent>
         <TabsContent value="achievements">
           <Achievements gameStats={gameStats} />
@@ -964,7 +1066,28 @@ export default function GuardianAngelLisaGame() {
           <Leaderboard />
         </TabsContent>
         <TabsContent value="rpg">
-          <RPGAdventure />
+          <RPGAdventure
+            gameStats={{
+              coins: gameStats.coins,
+              experience: gameStats.experience,
+              level: gameStats.level,
+            }}
+            onReward={(coins, experience) => {
+              setGameStats((prev) => ({
+                ...prev,
+                coins: prev.coins + coins,
+                experience: prev.experience + experience,
+                level: Math.floor((prev.experience + experience) / 1000) + 1,
+                experienceToNext: 1000 - ((prev.experience + experience) % 1000),
+              }));
+            }}
+            onLevelUp={(newLevel) => {
+              setGameStats((prev) => ({
+                ...prev,
+                level: newLevel,
+              }));
+            }}
+          />
         </TabsContent>
         <TabsContent value="telegram">
           <TelegramIntegration />
