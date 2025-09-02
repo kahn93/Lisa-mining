@@ -1,64 +1,64 @@
-"use client"
+'use client';
 
-import type React from "react"
+import type React from 'react';
 
-import { useState, useEffect, useCallback } from "react"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
+import { useState, useEffect, useCallback } from 'react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 
 interface MiningInterfaceProps {
-  gameStats: any
-  setGameStats: (stats: any) => void
+  gameStats: any;
+  setGameStats: (stats: any) => void;
 }
 
 interface FloatingReward {
-  id: number
-  amount: number
-  x: number
-  y: number
-  type: "normal" | "critical" | "bonus"
+  id: number;
+  amount: number;
+  x: number;
+  y: number;
+  type: 'normal' | 'critical' | 'bonus';
 }
 
 interface Particle {
-  id: number
-  x: number
-  y: number
-  vx: number
-  vy: number
-  life: number
-  maxLife: number
+  id: number;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  life: number;
+  maxLife: number;
 }
 
 export function MiningInterface({ gameStats, setGameStats }: MiningInterfaceProps) {
-  const [tapAnimation, setTapAnimation] = useState(false)
-  const [floatingRewards, setFloatingRewards] = useState<FloatingReward[]>([])
-  const [particles, setParticles] = useState<Particle[]>([])
-  const [comboCount, setComboCount] = useState(0)
-  const [comboTimer, setComboTimer] = useState(0)
-  const [offlineRewards, setOfflineRewards] = useState(0)
-  const [showOfflineModal, setShowOfflineModal] = useState(false)
+  const [tapAnimation, setTapAnimation] = useState(false);
+  const [floatingRewards, setFloatingRewards] = useState<FloatingReward[]>([]);
+  const [particles, setParticles] = useState<Particle[]>([]);
+  const [comboCount, setComboCount] = useState(0);
+  const [comboTimer, setComboTimer] = useState(0);
+  const [offlineRewards, setOfflineRewards] = useState(0);
+  const [showOfflineModal, setShowOfflineModal] = useState(false);
 
-  const [lastPlayTime, setLastPlayTime] = useState<number | null>(null)
-  const [gameStartTime, setGameStartTime] = useState<number | null>(null)
+  const [lastPlayTime, setLastPlayTime] = useState<number | null>(null);
+  const [gameStartTime, setGameStartTime] = useState<number | null>(null);
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const lpt = localStorage.getItem("lastPlayTime")
-      setLastPlayTime(lpt ? Number.parseInt(lpt) : null)
-      const gst = localStorage.getItem("gameStartTime")
-      setGameStartTime(gst ? Number.parseInt(gst) : Date.now())
+    if (typeof window !== 'undefined') {
+      const lpt = localStorage.getItem('lastPlayTime');
+      setLastPlayTime(lpt ? Number.parseInt(lpt) : null);
+      const gst = localStorage.getItem('gameStartTime');
+      setGameStartTime(gst ? Number.parseInt(gst) : Date.now());
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
     if (lastPlayTime && gameStats.autoMining) {
-      const now = Date.now()
-      const offlineTime = Math.min((now - lastPlayTime) / 1000, 3600) // Max 1 hour
-      const offlineEarnings = Math.floor(offlineTime * gameStats.miningPower * 0.5) // 50% efficiency offline
+      const now = Date.now();
+      const offlineTime = Math.min((now - lastPlayTime) / 1000, 3600); // Max 1 hour
+      const offlineEarnings = Math.floor(offlineTime * gameStats.miningPower * 0.5); // 50% efficiency offline
       if (offlineEarnings > 0) {
-        setOfflineRewards(offlineEarnings)
-        setShowOfflineModal(true)
+        setOfflineRewards(offlineEarnings);
+        setShowOfflineModal(true);
       }
     }
     // Auto mining interval
@@ -67,37 +67,37 @@ export function MiningInterface({ gameStats, setGameStats }: MiningInterfaceProp
         setGameStats((prev: any) => ({
           ...prev,
           coins: prev.coins + prev.miningPower,
-        }))
-      }, 1000)
-      return () => clearInterval(interval)
+        }));
+      }, 1000);
+      return () => clearInterval(interval);
     }
-  }, [lastPlayTime, gameStats.autoMining, gameStats.miningPower, setGameStats])
+  }, [lastPlayTime, gameStats.autoMining, gameStats.miningPower, setGameStats]);
 
   useEffect(() => {
-    const regenRate = 2000 - gameStats.level * 50 // Faster regen at higher levels
+    const regenRate = 2000 - gameStats.level * 50; // Faster regen at higher levels
     const interval = setInterval(
       () => {
         setGameStats((prev: any) => ({
           ...prev,
           energy: Math.min(prev.maxEnergy, prev.energy + (1 + Math.floor(prev.level / 5))),
-        }))
+        }));
       },
       Math.max(1000, regenRate),
-    )
-    return () => clearInterval(interval)
-  }, [gameStats.level, setGameStats])
+    );
+    return () => clearInterval(interval);
+  }, [gameStats.level, setGameStats]);
 
   useEffect(() => {
     if (comboTimer > 0) {
       const timeout = setTimeout(() => {
-        setComboTimer(comboTimer - 1)
+        setComboTimer(comboTimer - 1);
         if (comboTimer === 1) {
-          setComboCount(0)
+          setComboCount(0);
         }
-      }, 1000)
-      return () => clearTimeout(timeout)
+      }, 1000);
+      return () => clearTimeout(timeout);
     }
-  }, [comboTimer, comboCount])
+  }, [comboTimer, comboCount]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -111,22 +111,22 @@ export function MiningInterface({ gameStats, setGameStats }: MiningInterfaceProp
             life: p.life - 1,
           }))
           .filter((p) => p.life > 0),
-      )
-    }, 16) // 60fps
-    return () => clearInterval(interval)
-  }, [])
+      );
+    }, 16); // 60fps
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (typeof window !== "undefined") {
-        localStorage.setItem("lastPlayTime", Date.now().toString())
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('lastPlayTime', Date.now().toString());
       }
-    }, 5000)
-    return () => clearInterval(interval)
-  }, [])
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   const createParticles = useCallback((x: number, y: number, count = 5) => {
-    const newParticles: Particle[] = []
+    const newParticles: Particle[] = [];
     for (let i = 0; i < count; i++) {
       newParticles.push({
         id: Date.now() + i,
@@ -136,41 +136,41 @@ export function MiningInterface({ gameStats, setGameStats }: MiningInterfaceProp
         vy: -Math.random() * 3 - 1,
         life: 60,
         maxLife: 60,
-      })
+      });
     }
-    setParticles((prev) => [...prev, ...newParticles])
-  }, [])
+    setParticles((prev) => [...prev, ...newParticles]);
+  }, []);
 
   const handleMiningTap = (event: React.MouseEvent) => {
-    if (gameStats.energy <= 0) return
+    if (gameStats.energy <= 0) return;
 
-    const rect = event.currentTarget.getBoundingClientRect()
-    const x = event.clientX - rect.left
-    const y = event.clientY - rect.top
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
 
-    const basePower = gameStats.miningPower
-    const comboMultiplier = Math.min(1 + comboCount * 0.1, 3) // Max 3x multiplier
-    const criticalChance = 0.1 + gameStats.level * 0.01 // Increases with level
-    const isCritical = Math.random() < criticalChance
-    const isBonus = Math.random() < 0.05 // 5% bonus chance
+    const basePower = gameStats.miningPower;
+    const comboMultiplier = Math.min(1 + comboCount * 0.1, 3); // Max 3x multiplier
+    const criticalChance = 0.1 + gameStats.level * 0.01; // Increases with level
+    const isCritical = Math.random() < criticalChance;
+    const isBonus = Math.random() < 0.05; // 5% bonus chance
 
-    let finalReward = Math.floor(basePower * comboMultiplier)
-    let rewardType: "normal" | "critical" | "bonus" = "normal"
+    let finalReward = Math.floor(basePower * comboMultiplier);
+    let rewardType: 'normal' | 'critical' | 'bonus' = 'normal';
 
     if (isBonus) {
-      finalReward *= 5
-      rewardType = "bonus"
+      finalReward *= 5;
+      rewardType = 'bonus';
     } else if (isCritical) {
-      finalReward *= 2
-      rewardType = "critical"
+      finalReward *= 2;
+      rewardType = 'critical';
     }
 
     // Update combo
-    setComboCount((prev) => prev + 1)
-    setComboTimer(5) // 5 second combo window
+    setComboCount((prev) => prev + 1);
+    setComboTimer(5); // 5 second combo window
 
     // Create particles
-    createParticles(x, y, rewardType === "bonus" ? 15 : rewardType === "critical" ? 10 : 5)
+    createParticles(x, y, rewardType === 'bonus' ? 15 : rewardType === 'critical' ? 10 : 5);
 
     // Add floating reward
     const reward: FloatingReward = {
@@ -179,18 +179,19 @@ export function MiningInterface({ gameStats, setGameStats }: MiningInterfaceProp
       x,
       y,
       type: rewardType,
-    }
-    setFloatingRewards((prev) => [...prev, reward])
+    };
+    setFloatingRewards((prev) => [...prev, reward]);
 
     // Remove floating reward after animation
     setTimeout(() => {
-      setFloatingRewards((prev) => prev.filter((r) => r.id !== reward.id))
-    }, 1500)
+      setFloatingRewards((prev) => prev.filter((r) => r.id !== reward.id));
+    }, 1500);
 
     setGameStats((prev: any) => {
-      const newCoins = prev.coins + finalReward
-      const newExperience = prev.experience + (rewardType === "bonus" ? 5 : rewardType === "critical" ? 3 : 1)
-      const newLevel = Math.floor(newExperience / 1000) + 1
+      const newCoins = prev.coins + finalReward;
+      const newExperience =
+        prev.experience + (rewardType === 'bonus' ? 5 : rewardType === 'critical' ? 3 : 1);
+      const newLevel = Math.floor(newExperience / 1000) + 1;
 
       return {
         ...prev,
@@ -198,22 +199,22 @@ export function MiningInterface({ gameStats, setGameStats }: MiningInterfaceProp
         energy: Math.max(0, prev.energy - 1),
         experience: newExperience,
         level: newLevel,
-      }
-    })
+      };
+    });
 
     // Trigger tap animation
-    setTapAnimation(true)
-    setTimeout(() => setTapAnimation(false), 150)
-  }
+    setTapAnimation(true);
+    setTimeout(() => setTapAnimation(false), 150);
+  };
 
   const claimOfflineRewards = () => {
     setGameStats((prev: any) => ({
       ...prev,
       coins: prev.coins + offlineRewards,
-    }))
-    setShowOfflineModal(false)
-    setOfflineRewards(0)
-  }
+    }));
+    setShowOfflineModal(false);
+    setOfflineRewards(0);
+  };
 
   return (
     <div className="space-y-6 pb-20">
@@ -221,8 +222,12 @@ export function MiningInterface({ gameStats, setGameStats }: MiningInterfaceProp
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <Card className="p-6 max-w-sm w-full text-center">
             <h3 className="text-xl font-bold text-primary mb-2">Welcome Back!</h3>
-            <p className="text-sm text-muted-foreground mb-4">Your auto-mining earned rewards while you were away</p>
-            <div className="text-3xl font-bold text-primary mb-4">+{offlineRewards.toLocaleString()} coins</div>
+            <p className="text-sm text-muted-foreground mb-4">
+              Your auto-mining earned rewards while you were away
+            </p>
+            <div className="text-3xl font-bold text-primary mb-4">
+              +{offlineRewards.toLocaleString()} coins
+            </div>
             <Button onClick={claimOfflineRewards} className="w-full glow-effect">
               Claim Rewards
             </Button>
@@ -270,9 +275,9 @@ export function MiningInterface({ gameStats, setGameStats }: MiningInterfaceProp
             <Button
               size="lg"
               className={`w-36 h-36 rounded-full text-5xl mining-tap pulse-glow transition-all duration-150 ${
-                tapAnimation ? "scale-90" : ""
-              } ${gameStats.energy <= 0 ? "opacity-50 cursor-not-allowed" : ""} ${
-                comboCount > 5 ? "shadow-lg shadow-primary/50" : ""
+                tapAnimation ? 'scale-90' : ''
+              } ${gameStats.energy <= 0 ? 'opacity-50 cursor-not-allowed' : ''} ${
+                comboCount > 5 ? 'shadow-lg shadow-primary/50' : ''
               }`}
               onClick={handleMiningTap}
               disabled={gameStats.energy <= 0}
@@ -285,28 +290,30 @@ export function MiningInterface({ gameStats, setGameStats }: MiningInterfaceProp
               <div
                 key={reward.id}
                 className={`absolute font-bold pointer-events-none animate-bounce ${
-                  reward.type === "bonus"
-                    ? "text-yellow-400 text-xl"
-                    : reward.type === "critical"
-                      ? "text-red-400 text-lg"
-                      : "text-primary text-base"
+                  reward.type === 'bonus'
+                    ? 'text-yellow-400 text-xl'
+                    : reward.type === 'critical'
+                      ? 'text-red-400 text-lg'
+                      : 'text-primary text-base'
                 }`}
                 style={{
                   left: reward.x,
                   top: reward.y,
-                  transform: "translate(-50%, -50%)",
-                  animation: "float-up 1.5s ease-out forwards",
+                  transform: 'translate(-50%, -50%)',
+                  animation: 'float-up 1.5s ease-out forwards',
                 }}
               >
                 +{reward.amount}
-                {reward.type === "bonus" && " 🌟"}
-                {reward.type === "critical" && " ⚡"}
+                {reward.type === 'bonus' && ' 🌟'}
+                {reward.type === 'critical' && ' ⚡'}
               </div>
             ))}
           </div>
 
           <div className="mt-4 space-y-2">
-            <p className="text-sm text-muted-foreground">Tap to mine LISA tokens • Power: {gameStats.miningPower}</p>
+            <p className="text-sm text-muted-foreground">
+              Tap to mine LISA tokens • Power: {gameStats.miningPower}
+            </p>
             {comboCount > 1 && (
               <p className="text-xs text-primary font-medium">
                 Combo Multiplier: {Math.min(1 + comboCount * 0.1, 3).toFixed(1)}x
@@ -323,13 +330,13 @@ export function MiningInterface({ gameStats, setGameStats }: MiningInterfaceProp
             variant="outline"
             className="h-auto p-3 flex flex-col items-center gap-2 bg-transparent"
             onClick={() => {
-              const cost = 100 * Math.pow(1.5, gameStats.miningPower - 1)
+              const cost = 100 * Math.pow(1.5, gameStats.miningPower - 1);
               if (gameStats.coins >= cost) {
                 setGameStats((prev: any) => ({
                   ...prev,
                   coins: prev.coins - cost,
                   miningPower: prev.miningPower + 1,
-                }))
+                }));
               }
             }}
             disabled={gameStats.coins < 100 * Math.pow(1.5, gameStats.miningPower - 1)}
@@ -338,7 +345,9 @@ export function MiningInterface({ gameStats, setGameStats }: MiningInterfaceProp
             <span className="text-xs text-center">
               Power Up
               <br />
-              <Badge variant="secondary">{Math.floor(100 * Math.pow(1.5, gameStats.miningPower - 1))} coins</Badge>
+              <Badge variant="secondary">
+                {Math.floor(100 * Math.pow(1.5, gameStats.miningPower - 1))} coins
+              </Badge>
             </span>
           </Button>
 
@@ -346,16 +355,18 @@ export function MiningInterface({ gameStats, setGameStats }: MiningInterfaceProp
             variant="outline"
             className="h-auto p-3 flex flex-col items-center gap-2 bg-transparent"
             onClick={() => {
-              const cost = 500 * Math.pow(1.3, Math.floor(gameStats.maxEnergy / 50) - 2)
+              const cost = 500 * Math.pow(1.3, Math.floor(gameStats.maxEnergy / 50) - 2);
               if (gameStats.coins >= cost) {
                 setGameStats((prev: any) => ({
                   ...prev,
                   coins: prev.coins - cost,
                   maxEnergy: prev.maxEnergy + 50,
-                }))
+                }));
               }
             }}
-            disabled={gameStats.coins < 500 * Math.pow(1.3, Math.floor(gameStats.maxEnergy / 50) - 2)}
+            disabled={
+              gameStats.coins < 500 * Math.pow(1.3, Math.floor(gameStats.maxEnergy / 50) - 2)
+            }
           >
             <span className="text-2xl">🔋</span>
             <span className="text-xs text-center">
@@ -376,7 +387,7 @@ export function MiningInterface({ gameStats, setGameStats }: MiningInterfaceProp
                   ...prev,
                   coins: prev.coins - 2000,
                   autoMining: true,
-                }))
+                }));
               }
             }}
             disabled={gameStats.coins < 2000 || gameStats.autoMining}
@@ -385,8 +396,8 @@ export function MiningInterface({ gameStats, setGameStats }: MiningInterfaceProp
             <span className="text-xs text-center">
               Auto Mining
               <br />
-              <Badge variant={gameStats.autoMining ? "default" : "secondary"}>
-                {gameStats.autoMining ? "Active" : "2000 coins"}
+              <Badge variant={gameStats.autoMining ? 'default' : 'secondary'}>
+                {gameStats.autoMining ? 'Active' : '2000 coins'}
               </Badge>
             </span>
           </Button>
@@ -395,13 +406,13 @@ export function MiningInterface({ gameStats, setGameStats }: MiningInterfaceProp
             variant="outline"
             className="h-auto p-3 flex flex-col items-center gap-2 bg-transparent"
             onClick={() => {
-              const cost = 1000
+              const cost = 1000;
               if (gameStats.coins >= cost && gameStats.energy < gameStats.maxEnergy) {
                 setGameStats((prev: any) => ({
                   ...prev,
                   coins: prev.coins - cost,
                   energy: prev.maxEnergy,
-                }))
+                }));
               }
             }}
             disabled={gameStats.coins < 1000 || gameStats.energy >= gameStats.maxEnergy}
@@ -455,7 +466,7 @@ export function MiningInterface({ gameStats, setGameStats }: MiningInterfaceProp
             <div className="text-xl font-bold text-primary">
               {gameStartTime && gameStartTime < Date.now()
                 ? ((gameStats.coins / (Date.now() - gameStartTime)) * 60000).toFixed(1)
-                : "-"}
+                : '-'}
             </div>
             <div className="text-xs text-muted-foreground">Coins/min</div>
           </div>
@@ -466,5 +477,5 @@ export function MiningInterface({ gameStats, setGameStats }: MiningInterfaceProp
         </div>
       </Card>
     </div>
-  )
+  );
 }
