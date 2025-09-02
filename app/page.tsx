@@ -246,68 +246,16 @@ interface AirdropAllocation {
 //   return Math.random() * 5; // Mock balance
 // };
 
-const GameStore = () => {
-  return (
-    <div>
-      <h2>Game Store</h2>
-      {/* Add store content here */}
-    </div>
-  );
-};
+import { MiningInterface } from "@/components/mining-interface";
+import { GameStore } from "@/components/game-store";
+import { Achievements } from "@/components/achievements";
+import { Leaderboard } from "@/components/leaderboard";
+import { TelegramIntegration } from "@/components/telegram-integration";
+import { TelegramTasks } from "@/components/telegram-tasks";
+import RPGAdventure from "@/components/rpg-adventure";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { GameHeader } from "@/components/game-header";
 
-const Achievements = () => {
-  return (
-    <div>
-      <h2>Achievements</h2>
-      {/* Add achievements content here */}
-    </div>
-  );
-};
-
-const Leaderboard = () => {
-  return (
-    <div>
-      <h2>Leaderboard</h2>
-      {/* Add leaderboard content here */}
-    </div>
-  );
-};
-
-const TelegramIntegration = () => {
-  return (
-    <div>
-      <h2>Telegram Integration</h2>
-      {/* Add Telegram integration content here */}
-    </div>
-  );
-};
-
-const TelegramTasks = () => {
-  return (
-    <div>
-      <h2>Telegram Tasks</h2>
-      {/* Add Telegram tasks content here */}
-    </div>
-  );
-};
-
-const MiningInterface = () => {
-  return (
-    <div>
-      <h2>Mining Interface</h2>
-      {/* Add mining interface content here */}
-    </div>
-  );
-};
-
-const GameHeader = () => {
-  return (
-    <div>
-      <h2>Game Header</h2>
-      {/* Add game header content here */}
-    </div>
-  );
-};
 
 const TransactionMonitor = () => {
   return (
@@ -959,16 +907,39 @@ export default function GuardianAngelLisaGame() {
   }
   return (
     <div>
-      {/* Main game UI goes here */}
-      <h1>Guardian Angel Lisa Game</h1>
-      {/* Example: Render active tab */}
-      {activeTab === 'mining' && <MiningInterface />}
-      {activeTab === 'store' && <GameStore />}
-      {activeTab === 'achievements' && <Achievements />}
-      {activeTab === 'leaderboard' && <Leaderboard />}
-      {activeTab === 'telegram' && <TelegramIntegration />}
-      {activeTab === 'tasks' && <TelegramTasks />}
-      {/* Add more UI as needed */}
+      <GameHeader gameStats={gameState} wallet={wallet} tonConnectUI={tonConnectUI} />
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="mb-4 flex flex-wrap gap-2 justify-center">
+          <TabsTrigger value="mining">Mining</TabsTrigger>
+          <TabsTrigger value="store">Store</TabsTrigger>
+          <TabsTrigger value="achievements">Achievements</TabsTrigger>
+          <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
+          <TabsTrigger value="rpg">RPG Adventure</TabsTrigger>
+          <TabsTrigger value="telegram">Telegram</TabsTrigger>
+          <TabsTrigger value="tasks">Tasks</TabsTrigger>
+        </TabsList>
+        <TabsContent value="mining">
+          <MiningInterface gameStats={gameState} setGameStats={setGameState} />
+        </TabsContent>
+        <TabsContent value="store">
+          <GameStore wallet={wallet} tonConnectUI={tonConnectUI} />
+        </TabsContent>
+        <TabsContent value="achievements">
+          <Achievements gameStats={gameState} />
+        </TabsContent>
+        <TabsContent value="leaderboard">
+          <Leaderboard />
+        </TabsContent>
+        <TabsContent value="rpg">
+          <RPGAdventure />
+        </TabsContent>
+        <TabsContent value="telegram">
+          <TelegramIntegration />
+        </TabsContent>
+        <TabsContent value="tasks">
+          <TelegramTasks />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
