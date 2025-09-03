@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // @ts-nocheck
 import { useEffect, useState } from 'react';
-
+import react from 'react';
 
 interface Mission {
   id: string;
