@@ -1,8 +1,7 @@
 "use client";
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // @ts-nocheck
-import { useEffect, useState } from 'react';
-import react from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface Mission {
   id: string;
